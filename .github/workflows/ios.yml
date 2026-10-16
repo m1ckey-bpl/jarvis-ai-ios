@@ -53,19 +53,34 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Errors (copy this block when asking for a fix)
+        if: failure()
+        run: |
+          {
+            echo "### Swift engine errors"
+            echo '```'
+            grep -E "error:" "$RUNNER_TEMP/swift-tests.log" 2>/dev/null | sort -u | head -40 \
+              || echo "no 'error:' lines captured — see the swift-test-log artifact"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload the test log on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: swift-test-log
           path: ${{ runner.temp }}/swift-tests.log
-          retention-days: 7
+          retention-days: 14
 
   unsigned-ipa:
     name: Unsigned IPA
     runs-on: macos-14
     timeout-minutes: 45
     needs: tests
+    # `write` is needed only for the tag path below, which attaches the artefact to a
+    # GitHub Release (a download link that outlives the 90-day artifact retention).
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -98,7 +113,30 @@ jobs:
           path: |
             dist/*.ipa
             dist/*.sha256
-          retention-days: 30
+          retention-days: 90
+
+      - name: Compile errors (copy this block when asking for a fix)
+        if: failure()
+        run: |
+          {
+            echo "### SwiftUI / Xcode compile errors"
+            echo '```'
+            grep -E "error:" build/unsigned/xcodebuild.log 2>/dev/null | sort -u | head -40 \
+              || echo "no 'error:' lines captured — see the ios-build-diagnostics artifact"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Attach the IPA to the GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --verify-tag --title "JARVIS $TAG" \
+                 --notes "Unsigned build — sign it with your own method before installing. No credentials are bundled."
+          gh release upload "$TAG" dist/*.ipa dist/*.sha256 --clobber
+          echo "Attached dist/*.ipa to release $TAG" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload build diagnostics on failure
         if: failure()

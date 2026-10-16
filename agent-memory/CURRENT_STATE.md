@@ -31,7 +31,7 @@ environment; milestone 12 (final audit) is written as
   `generate_xcode_project.py`.
 * **CI**: three workflows (validate / backend / ios). No workflow references a
   repository secret; the validator fails the build if one appears.
-* **Docs**: twelve documents under `docs/`, including the honest status report
+* **Docs**: thirteen documents under `docs/`, including the honest status report
   (`DEFINITION_OF_DONE.md`) and the evidence log (`TEST_REPORT.md`).
 
 ## What is explicitly unfinished or unverified

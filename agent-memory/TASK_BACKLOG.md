@@ -45,7 +45,7 @@ Priority: P0 = release gate · P1 = important · P2 = nice-to-have
 | G16 | Build workflow documented | DONE — `docs/BUILD_GUIDE.md` |
 | G17 | Unsigned IPA generation attempted in an appropriate environment | IMPL — script + CI job ready and structurally verified; not yet executed (no macOS here) |
 | G18 | Generated IPA structurally verified | IMPL — verifier proven on synthetic archives; real artefact pending G17 |
-| G19 | Documentation set complete and consistent | DONE — 12 documents under `docs/` |
+| G19 | Documentation set complete and consistent | DONE — 13 documents under `docs/` |
 | G20 | GitHub Actions workflows defined and free-tier safe | IMPL — 3 workflows, no `secrets.` context, never executed |
 
 ## Backlog — next up

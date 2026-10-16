@@ -78,7 +78,8 @@ backend/                             Optional stdlib-only Python service + 112 t
 assets/                              Generated icon, hero image, lockup
 docs/                                PRODUCT_SPEC · ARCHITECTURE · DESIGN_SYSTEM · MEMORY_PROTOCOL · SECURITY ·
                                      FREE_TIER_POLICY · BUILD_GUIDE · INTEGRATIONS · TROUBLESHOOTING ·
-                                     TEST_REPORT · DEFINITION_OF_DONE · SECTION_19_STATUS
+                                     TEST_REPORT · DEFINITION_OF_DONE · SECTION_19_STATUS ·
+                                     GET_THE_IPA
 agent-memory/                        Engineering memory: constitution, state, decisions, backlog, issues, handoff
 scripts/                             validate_project.sh · run_tests.sh · build_unsigned_ipa.sh ·
                                      verify_unsigned_ipa.sh · generate_app_icon.py · generate_xcode_project.py
@@ -86,6 +87,8 @@ scripts/                             validate_project.sh · run_tests.sh · buil
 
 ## Documentation
 
+* **[Getting the unsigned IPA](docs/GET_THE_IPA.md)** — the five-minute handover: what
+  you do, what I need, and what I will never ask you for.
 * **[Section 19 status report](docs/SECTION_19_STATUS.md)** — the short version: what is
   done, what is verified, and exactly what still needs a Mac.
 * **[Test report](docs/TEST_REPORT.md)** — every executed test, with mocked vs live labelled.

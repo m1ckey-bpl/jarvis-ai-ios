@@ -112,7 +112,7 @@ because nothing in this environment can compile SwiftUI or run `xcodebuild`.
 | `ios/JarvisApp.xcodeproj/` | Generated project (deterministic; `--check` in CI) |
 | `backend/` | Optional stdlib-only companion service — 112 tests |
 | `scripts/` | validate, test, IPA build, IPA verify, icon generator, project generator |
-| `docs/` | 12 documents: spec, architecture, design, memory, security, free tier, integrations, troubleshooting, build guide, evidence, Definition of Done, and this status report |
+| `docs/` | 13 documents: spec, architecture, design, memory, security, free tier, integrations, troubleshooting, build guide, evidence, Definition of Done, this status report, and the IPA handover guide |
 | `agent-memory/` | Engineering memory: constitution, state, decisions, backlog, issues, handoff |
 | `assets/` | Generated icon, hero, lockup |
 
