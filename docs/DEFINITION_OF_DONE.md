@@ -38,14 +38,14 @@ is labelled *not verified here*, with the reason and the exact command you can r
 
 | # | Item | Why not | How you verify it (exact command) |
 |---|---|---|---|
-| 25 | The SwiftUI app target compiles | SwiftUI, EventKit, Speech, AVFoundation and UserNotifications do not exist on Linux | `xcodebuild -project ios/JarvisApp.xcodeproj -scheme JarvisApp -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build` |
-| 26 | The unsigned `.ipa` is produced | `xcodebuild` requires macOS | `./scripts/build_unsigned_ipa.sh` |
+| 25 | The SwiftUI app target compiles | ⚠️ **now verified** — the app layer compiled, linked and passed Xcode's bundle validation on a `macos-14` runner (`** BUILD SUCCEEDED **`, CI run #5). Its first compile found 9 errors with one root cause (a missing `import UIKit`), all fixed. | re-run any time: push, or `gh workflow run ios.yml` |
+| 26 | The unsigned `.ipa` is produced | ⚠️ **now verified** — `JarvisApp-1.0.0-unsigned.ipa` built by CI run #5 (`3,611,746` bytes, SHA-256 `d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33`) and rebuilt for the tag by run #6 (`3,611,884` bytes, SHA-256 `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb`, attached to release `v1.0.0`). Both were downloaded and re-verified on Linux by `verify_unsigned_ipa.sh`; each checksum matches the one the workflow published | `./scripts/build_unsigned_ipa.sh` on a Mac, or download the run artifact / the `v1.0.0` release asset |
 | 27 | Runtime behaviour on a device: orb states, haptics, VoiceOver, Dynamic Type, Reduce Motion, safe areas | Requires a device or simulator | Run the app and walk the checklist in §3 |
 | 28 | Live provider calls with a real key | No key is present by design (and no key will ever be committed) | Settings ▸ AI Providers ▸ "Test connection" |
 | 29 | Live OAuth against Google/Meta | Requires your own cloud projects and consent screens | Settings ▸ Permissions and `backend/README.md` §OAuth |
 | 30 | WhatsApp Business / Instagram Graph sends | Require your Meta Business account | `POST /v1/integrations/whatsapp/send` with `userApproved: true` |
 | 31 | Reminder notifications firing in the foreground/background | Requires a device | Create a reminder two minutes out and wait |
-| 32 | GitHub Actions green on a runner | Runs now execute on the public repository: *Validate repository* is green; the *Engine tests* job is green on `macos-14` (107 tests); the *Unsigned IPA* job has not yet succeeded — it is where the SwiftUI layer gets its first compile, and it has already found two real defects (see §5) | Re-run after the project-file fix: `gh workflow run ios.yml` or push |
+| 32 | GitHub Actions green on a runner | ⚠️ **now verified** — *Validate repository* #5 green (82 checks), *iOS* #5 green: engine tests 107/0 on `macos-14`, unsigned IPA built, verified and uploaded (3.4 MB artifact) | `gh workflow run ios.yml` |
 
 ## 3. Manual acceptance checklist (10 minutes on a device)
 
@@ -146,3 +146,25 @@ is not prettier than the history:
   level 2 suppresses pytest's summary line. Fixed by dropping the duplicate flag
   and adding a "count unavailable" fallback — a summary that silently omits the
   number is how a suite gets reported as green without one.
+
+## 6. Addendum — the build, after four red runs
+
+| Run | Result |
+|---|---|
+| #1 | red — engine build: captured-var error in a test (Linux toolchain had accepted it) |
+| #2 | red — `xcodebuild` could not read the generated project (unquoted comma) |
+| #3 | red — app layer's first compile: 9 errors, one root cause (missing `import UIKit`) |
+| #4 | red — `** BUILD SUCCEEDED **`, then my packaging script mis-handled a relative `--output` |
+| **#5** | **green** — 107 engine tests on macOS, app built, unsigned IPA produced, verified, uploaded |
+| #6 | green — tag `v1.0.0`: same artefact attached to a GitHub Release (link that does not expire) |
+
+Artefacts: `JarvisApp-1.0.0-unsigned.ipa` — 3,611,746 bytes, SHA-256
+`d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33` (run #5 artifact), and 3,611,884 bytes, SHA-256 `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb`
+(run #6, the `v1.0.0` release asset). The two are not byte-identical because the second
+was rebuilt from the same commit and zip records timestamps; **each one's checksum
+matches the value the workflow published for it**, recomputed independently here.
+Bundle `ai.jarvis.assistant`, minimum iOS 17.0, arm64, no `_CodeSignature`, no
+provisioning profile, no entitlements.
+
+Still not verified, and unchanged by this: runtime behaviour on a device (§2 items
+27–31 — orb states, haptics, VoiceOver, notifications, live provider and OAuth calls).

@@ -192,3 +192,25 @@ marker in the file means an exclusion cannot be added silently for a file that a
 a live key without a reviewer seeing the claim in the diff.
 **Consequences:** Four test files carrying deliberately fake key shapes are excluded; all four
 carry the marker; the validator prints each exclusion it honours.
+
+### D17 — The real toolchain is the only judge of "it compiles"; keep the red runs
+**Date:** 2026-10-16 · **Status:** ACCEPTED
+**Decision:** Compilability claims come from an actual macOS build. Four CI runs were
+allowed to fail on real defects, and every failure is kept in `docs/TEST_REPORT.md` §6
+rather than deleted or re-run into silence.
+**Rationale:** `swiftc -parse` on Linux, balanced-brace checks and even the author's own
+plist parser cannot see a toolchain-specific concurrency diagnostic, an unquoted comma in
+a project file, or a missing `import UIKit`. Each of those was found only by running the
+real thing — which is what the DoD rule ("name the command that produced the claim")
+exists to force.
+**Consequences:** Any future claim about the app must cite a workflow run, not a parse
+check; the four red runs stay part of the project's history.
+
+### D18 — A tagged release is the durable delivery channel for the IPA
+**Date:** 2026-10-16 · **Status:** ACCEPTED
+**Decision:** A `v*` tag makes CI rebuild the IPA and attach it (with its SHA-256) to a
+GitHub Release, in addition to the 90-day workflow artifact.
+**Rationale:** Artifacts expire. The user needs a link that still works when they get
+round to signing, and a checksum they can verify independently.
+**Consequences:** Releases contain an *unsigned* build; the release notes say so, and the
+signing step remains entirely the user's.

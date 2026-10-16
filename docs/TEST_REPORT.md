@@ -101,5 +101,24 @@ the two defects below were invisible to every local check.
 Independent confirmation: the generated file also parses with the third-party
 `pbxproj` library (`XcodeProject.load`), which mirrors Apple's grammar.
 
-Status of those two runs: iOS #1 and #2 are **red**, kept as the record of what was
-wrong. The engine test job is green on `macos-14` from run #2 onwards.
+Runs #1–#4 are kept as the record of what was wrong. **Run #5 is green end to end:**
+107 engine tests on `macos-14`, the app compiles, and the unsigned IPA is produced,
+verified and uploaded — `JarvisApp-1.0.0-unsigned.ipa`, 3,611,746 bytes, SHA-256
+`d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33` (confirmed by recomputing it on Linux after download). **Run #6** (tag
+`v1.0.0`) rebuilt the package from the same commit and attached it, with its checksum, to
+the release: 3,611,884 bytes, SHA-256 `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb`. The two differ in size because zip
+stores timestamps; both were downloaded here, both verified, and both checksums match
+what their workflow published. Backend workflow #1 (manual dispatch) is green as well.
+
+```
+$ ./scripts/verify_unsigned_ipa.sh JarvisApp-1.0.0-unsigned.ipa
+  ok    zip integrity: ok
+  ok    bundle: Payload/JarvisApp.app
+  ok    bundle identifier: ai.jarvis.assistant
+  ok    executable: JarvisApp
+  ok    resource present: Assets.car
+  ok    unsigned: no _CodeSignature, mobileprovision, CodeResources or entitlements
+  ok    declared capabilities: background modes, ATS policy
+  ok    no credential-shaped strings in the binary or plists
+RESULT: the IPA is structurally valid and unsigned
+```

@@ -11,6 +11,14 @@ and parse-checked; the Xcode build has never run.
 3. `docs/DEFINITION_OF_DONE.md` — what is verified vs. what still needs a Mac.
 4. `docs/TEST_REPORT.md` — the recorded evidence, with the mocked/live distinction.
 
+## Where this left off on 2026-10-16
+
+Repository live at https://github.com/m1ckey-bpl/jarvis-ai-ios (public). CI green:
+*Validate repository* (82 checks), *iOS* (107 engine tests on `macos-14`, unsigned IPA built,
+verified and uploaded), *Backend* (112 tests). The artefact `JarvisApp-1.0.0-unsigned.ipa`
+(SHA-256 `d109ff09…`) is attached to the `v1.0.0` release. The next human action is signing
+that IPA and running the device checklist — nothing else is blocked.
+
 ## Exact next actions
 
 ```bash
@@ -30,8 +38,17 @@ python3 scripts/generate_xcode_project.py --check
 
 ## Things that will bite you if you forget them
 
-* **No macOS here.** Never write "the app builds" or "the IPA exists" — it does not
-  yet. `swiftc -parse` is syntax only.
+* **This sandbox loses `.git/config` and file modes between turns.** Set the commit identity
+  inline (`git -c user.name=... -c user.email=... commit`) and `chmod +x scripts/*.sh` before
+  committing, or the scripts stop being executable in the index — CI runs `./scripts/...`.
+* **Never hand-quote a value in the pbxproj generator.** Everything goes through `plist_quote`;
+  a bare `1,2` is a syntax error in that grammar and Xcode refuses the entire project.
+  `generate_xcode_project.py --verify` and `validate_project.sh` catch it.
+* **`build_unsigned_ipa.sh` anchors a relative `--output` to the caller's directory** — `zip`
+  runs inside the build directory, which is what broke CI #4.
+
+* **No macOS here — but CI has one.** Compilability claims must cite a workflow run;
+  `swiftc -parse` is syntax only and has already missed two real defects.
 * **`swift test` can hang** if an orphaned `swift-test`/`xctest` process holds the
   build lock; `scripts/run_tests.sh` clears them, and `pgrep -af 'swift|xctest'`
   diagnoses it.

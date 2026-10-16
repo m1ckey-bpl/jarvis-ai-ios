@@ -63,7 +63,7 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
 - **Symptom:** Syntax validation cannot catch SwiftUI type errors.
 - **Handling:** treated as a smoke test only; the authoritative check is the macOS build (K2).
 
-### K11 — The SwiftUI app layer has never been compiled · **S1** · OPEN (highest risk)
+### K11 — The SwiftUI app layer has never been compiled · **S1** · **RESOLVED 2026-10-16**
 - **Symptom:** `ios/JarvisApp/**` (24 files, 5,233 lines) has been written and
   `swiftc -parse`-checked, but no SwiftUI/EventKit/Speech/AVFoundation module exists in the
   development environment, so no type checking has occurred. Type errors are therefore possible
@@ -77,8 +77,11 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
   the next CI run is its first real type check.
 - **Handling:** `docs/DEFINITION_OF_DONE.md` §2 lists this as *not verified here* with the exact
   command; the iOS CI job exists to close it; the manual checklist is written and ready.
-- **Next step:** run `xcodebuild -project ios/JarvisApp.xcodeproj -scheme JarvisApp -configuration
-  Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build` and fix what it reports.
+- **Resolution:** Xcode 15.4 on `macos-14` compiled, linked and validated the bundle in CI
+  run #5 (`** BUILD SUCCEEDED **`). The first compile produced 9 errors from one root cause (a
+  missing `import UIKit` in `Services.swift`), all fixed; the unsigned IPA was produced and
+  verified in the same run. Kept as history — the lesson is that only the real toolchain could
+  answer this question.
 
 ### K12 — No live provider, OAuth or integration path has executed · **S2** · BY DESIGN
 - **Symptom:** Every provider/OAuth/integration test uses a stubbed transport. No request has ever
@@ -91,3 +94,14 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
   requirements.
 - **Residual risk:** an API change on a provider side would only surface at the user's first live
   call. The error taxonomy maps such failures to actionable messages rather than silent ones.
+
+### K13 — Nothing has run on a device · **S2** · OPEN
+- **Symptom:** The IPA is verified structurally and the app compiles, but no code has executed
+  on hardware: orb animations, haptics, VoiceOver, Dynamic Type, Reduce Motion, notification
+  scheduling and delivery, microphone and speech permission flows.
+- **Impact:** A runtime crash or an accessibility/layout defect would surface only here. The 219
+  unit tests cover the logic, which reduces but does not remove this risk.
+- **Handling:** `docs/DEFINITION_OF_DONE.md` §3 is a 14-step manual checklist for exactly this,
+  about ten minutes after signing.
+- **Next step:** sign the IPA with the user's own method, install, walk the checklist, and
+  replace the *not verified* rows with observed results.
