@@ -49,11 +49,11 @@ public final class MotionParallax: ObservableObject {
             return
         }
         manager.deviceMotionUpdateInterval = 1.0 / 30.0
-        // `to: nil` is required by the SDK's signature for the handler variant. The handler
-        // only computes plain values and then hops to the main actor to publish them:
-        // touching main-actor state directly from this closure would not compile (and would
-        // be a data race even if it did).
-        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: nil) { [weak self] motion, _ in
+        // The handler variant of this call takes a non-optional OperationQueue, so updates
+        // are delivered on the main queue. The body still computes plain values and then
+        // hops explicitly to the main actor: touching main-actor state directly from this
+        // closure would not compile (and would be a data race even if it did).
+        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: .main) { [weak self] motion, _ in
             guard let motion else { return }
             let roll = max(-1.0, min(1.0, motion.attitude.roll))
             let pitch = max(-1.0, min(1.0, motion.attitude.pitch))
