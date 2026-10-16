@@ -2,6 +2,9 @@ import Foundation
 import UserNotifications
 import EventKit
 import os
+#if canImport(UIKit)
+import UIKit   // haptics: UIImpactFeedbackGenerator and friends
+#endif
 
 /// Bridges the engine logger to the unified system log (visible in Console.app,
 /// never containing secrets because `JarvisLog` redacts before writing).

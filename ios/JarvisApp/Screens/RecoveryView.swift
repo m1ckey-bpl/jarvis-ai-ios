@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit   // UIPasteboard for "copy diagnostics"
+#endif
 
 /// Error & Recovery. Shown when the app cannot start properly — the real error,
 /// a plain-language explanation, and concrete next steps.
