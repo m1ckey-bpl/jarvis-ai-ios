@@ -1,0 +1,3 @@
+# Runtime: none. The backend uses only the Python 3.11+ standard library
+# (http.server, sqlite3, urllib, hmac, secrets, json) so that it can be deployed
+# on any free tier without a build step, and audited without a dependency tree.

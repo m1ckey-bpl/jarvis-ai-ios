@@ -1,0 +1,56 @@
+# ---- Secrets & credentials (NEVER commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.key
+secrets/
+**/Secrets.plist
+**/GoogleService-Info.plist
+*.token
+auth.json
+
+# ---- Xcode / Swift ----
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+build/
+Build/
+.build/
+.swiftpm/
+Packages/
+*.moved-aside
+*.hmap
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# ---- Python backend ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

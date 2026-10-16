@@ -1,0 +1,112 @@
+# The iOS app: Swift engine tests on the macOS runner, then an UNSIGNED .ipa
+# build, structural verification and artefact upload.
+#
+# Nothing here needs a signing certificate, a provisioning profile, an Apple ID
+# or a paid developer account. Secrets are deliberately absent: if this workflow
+# required one, the guarantee that the repository holds no credentials would be
+# broken. Free macOS runner minutes are only granted to public repositories —
+# see docs/FREE_TIER_POLICY.md.
+name: iOS
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Engine tests (SwiftPM)
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Build the engine with tests
+        working-directory: ios
+        run: swift build --build-tests
+
+      - name: Run the engine test suite
+        working-directory: ios
+        run: swift test --skip-build 2>&1 | tee "$RUNNER_TEMP/swift-tests.log"
+
+      - name: Summarise results
+        if: always()
+        run: |
+          {
+            echo "### Swift engine tests"
+            echo '```'
+            grep -E "Executed [0-9]+ tests" "$RUNNER_TEMP/swift-tests.log" | tail -3 || echo "no result line"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the test log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-test-log
+          path: ${{ runner.temp }}/swift-tests.log
+          retention-days: 7
+
+  unsigned-ipa:
+    name: Unsigned IPA
+    runs-on: macos-14
+    timeout-minutes: 45
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate and verify the Xcode project
+        run: python3 scripts/generate_xcode_project.py --check
+
+      - name: Build and package the unsigned IPA
+        run: ./scripts/build_unsigned_ipa.sh --configuration Release --output dist
+
+      - name: Show the artefact
+        run: |
+          ls -lh dist
+          shasum -a 256 dist/*.ipa | tee dist/JarvisApp-unsigned.sha256
+
+      - name: Summarise the artefact
+        run: |
+          {
+            echo "### Unsigned IPA"
+            echo '```'
+            ls -lh dist/*.ipa
+            cat dist/JarvisApp-unsigned.sha256
+            echo '```'
+            echo "This build is unsigned by design. Sign it with your own method before installing."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: JarvisApp-unsigned-ipa
+          path: |
+            dist/*.ipa
+            dist/*.sha256
+          retention-days: 30
+
+      - name: Upload build diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-diagnostics
+          path: |
+            build/unsigned/xcodebuild.log
+            build/unsigned/DerivedData/Logs/**
+          if-no-files-found: ignore
+          retention-days: 7

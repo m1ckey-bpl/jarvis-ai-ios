@@ -1,0 +1,68 @@
+# The Python companion backend: tests, startup check and static checks.
+# The backend has no third-party runtime dependencies; pytest is the only
+# development requirement. No secrets are needed.
+name: Backend
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install development requirements
+        run: python3 -m pip install --upgrade pip && python3 -m pip install -r backend/requirements-dev.txt
+
+      - name: Byte-compile every module
+        working-directory: backend
+        run: python3 -m compileall -q app tests
+
+      - name: Run the test suite (no network access)
+        working-directory: backend
+        run: python3 -m pytest --junitxml=pytest-report.xml   # pytest.ini already sets -q; a second -q would hide the count
+
+      - name: Startup self-check
+        working-directory: backend
+        env:
+          JARVIS_BACKEND_TOKEN: ci-token-not-a-real-secret
+        run: python3 -m app.main --check --data-dir "$RUNNER_TEMP/jarvis-data"
+
+      - name: Refuse an insecure public bind
+        working-directory: backend
+        run: |
+          if JARVIS_HOST=0.0.0.0 JARVIS_BACKEND_TOKEN= python3 -m app.main --check; then
+            echo "::error::the backend started without an auth token on a public interface"
+            exit 1
+          fi
+
+      - name: Upload the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: backend/pytest-report.xml
+          if-no-files-found: ignore
+          retention-days: 14
