@@ -9,11 +9,11 @@ estimated. Tests are labelled **mocked** (no external service involved) or **liv
 because no credential and no network are available, and that is stated rather than
 glossed over.
 
-## 1. Swift engine suite — 107 tests, 0 failures
+## 1. Swift engine suite — 127 tests, 0 failures
 
 ```
 cd ios && swift build --build-tests && swift test --skip-build
-→ Executed 107 tests, with 0 failures (0 unexpected) in 1.306 (1.306) seconds
+→ Executed 127 tests, with 0 failures (0 unexpected) in 1.32 (1.32) seconds
 ```
 
 | Suite | Tests | What it proves | Kind |
@@ -26,6 +26,8 @@ cd ios && swift build --build-tests && swift test --skip-build
 | `MemoryTests` | 13 | Persistence, kinds, correction chains, retention/expiry, ranked retrieval, export formats, migration idempotency | mocked |
 | `ToolEngineTests` | 14 | Registry, argument validation/coercion, capability and permission gates, confirmation routing, timeout handling, redacted run log, `verified` semantics | mocked |
 | `OrchestratorTests` | 15 | Local intent routing without a provider, streaming turn lifecycle, memory extraction, tool loop, confirmation approval/decline, cancellation, honest unconfigured state | mocked |
+| `ModelDiscoveryTests` | 14 | Live model listing: parsing of Gemini and OpenAI-compatible payloads, filtering of non-chat models (whisper/tts/embedding/imagen), deterministic ranking, the key travelling in a header and never in the URL, and the exact HTTP status plus the provider's own wording coming back as a value instead of a thrown-away failure | mocked |
+| `VisemeTests` | 6 | The mouth-shape maths behind the face: vowels decide the shape (not the first consonant), no-vowel words fall back to consonant shapes, every shape keeps a visible height, jaw opening is bounded and vowel-driven, punctuation closes the mouth down | mocked |
 
 ## 2. Backend suite — 112 tests, 0 failures
 
@@ -69,7 +71,7 @@ quiet level 2, which hides the "N passed" line — that is exactly how
 
 | Area | Why | How it will be covered |
 |---|---|---|
-| SwiftUI compilation and view behaviour | No macOS/Xcode in this environment | First `xcodebuild` run; then the manual checklist in `DEFINITION_OF_DONE.md` §3 |
+| SwiftUI compilation and view behaviour | No macOS/Xcode in this environment. CI has since compiled the app layer (iOS #4–#6); the **v1.1.0** view code (animated face, spatial backdrop, reworked navigation and provider screen) has not been compiled anywhere yet | The next `xcodebuild` run; then the manual checklist in `DEFINITION_OF_DONE.md` §3. The view layer intentionally holds no business logic, and everything it depends on (state machine, viseme maths, discovery, error mapping) *is* unit-tested |
 | Live provider inference | Requires your key; no key is ever committed or bundled | Settings ▸ AI Providers ▸ "Test connection" |
 | Live OAuth (Google/Meta) | Requires your cloud project and consent screens | `docs/INTEGRATIONS.md` + `backend/README.md` |
 | Push/delivery of notifications on device | Requires a device and permission grant | Create a reminder two minutes out |
@@ -122,3 +124,19 @@ $ ./scripts/verify_unsigned_ipa.sh JarvisApp-1.0.0-unsigned.ipa
   ok    no credential-shaped strings in the binary or plists
 RESULT: the IPA is structurally valid and unsigned
 ```
+
+## 7. Second cycle — v1.1.0: what the first device build found
+
+`JarvisApp-1.0.0-unsigned.ipa` was installed and used on a real iPhone. Three of the
+four defects below are **user-reported**; none of them were visible to `swiftc -parse`,
+to `validate_project.sh`, or to the CI compile, because every one of them is a runtime
+behaviour. They are recorded here because a report that only lists passing tests is a
+worse report.
+
+| # | Report | Root cause (found by reading the code path end to end) | Fix | Evidence |
+|---|---|---|---|---|
+| 1 | "I paste the Gemini API key and it does not work" | `ProviderSettingsView.saveKey()` wrote the key to the Keychain for the **selected** provider but never persisted `ProviderSettings`. With nothing saved, `AgentOrchestrator` had no active provider and answered "I can't reach a language model yet". Worse, `runTest()` used `saveSettingsIfNeeded()`, which saved only when *nothing* was stored — so a previously saved Groq config stayed active and the freshly pasted **Gemini key was sent to Groq**, which answered `401 Invalid API Key`. The app was not broken; it was talking to the wrong provider and hiding the reason | Saving a key now also activates the provider and its model (`saveKeyAndActivate`), every save writes the settings, "Run test" activates the on-screen configuration first so what you test is what runs, and the screen shows which provider is **active** versus which is being edited | `ModelDiscoveryTests` (14) cover the status/word reporting and the header-vs-URL key placement; the wiring itself is compile-verified in CI and needs a device to confirm (see `KNOWN_ISSUES.md` K13) |
+| 2 | "Some buttons are hidden / do not respond to taps" | `NavigationShell` laid the custom tab bar out as an **overlay**: `ZStack(alignment: .bottom)` with the tab bar on top of the screen content. Anything a screen put near its bottom edge — the composer's send button, the approve/decline pair on a confirmation card, the last rows of long forms — sat *underneath* the bar: visible, but its taps were delivered to the bar | The content and the bar are now siblings in a `VStack`, so the content area ends where the bar begins. Every interactive control in the shell, the header, the composer and the confirmation card has a ≥44 pt hit area with an explicit `contentShape` | CI compile; device confirmation needed |
+| 3 | "The UI is too basic" / "I want an animated face that speaks" | Correct assessment: v1.0.0 shipped a state-reactive orb, no face, no depth | Original animated face (`JarvisFace`): polished-silver cranium, dark visor with two luminescent optics, segmented seven-bar light mouth. The **mouth is driven by `AVSpeechSynthesizer.willSpeakRangeOfSpeechString`** — the letters actually being voiced map to a `Viseme` and a jaw opening, so the lips follow the words and stop when the voice stops; there is no decorative animation loop. Added a spatial layer (`SpatialBackdrop`, `MotionParallax`, `SpatialSurface`): three parallax strata moved by the device's own attitude (CoreMotion), lit by the assistant's state, with Reduce Motion and no-sensor fallbacks that are honest about what they are | `VisemeTests` (6) cover the shape maths. The rendering needs a device |
+| 4 | Not user-reported — found while re-running the suite for this cycle | The first `Viseme` tests failed for a real reason: `Viseme(pronouncing:)` returned on the **first** matching letter, so "Jarvis" produced a fricative (the "j") and "stop" a fricative (the "s") instead of their vowel shapes. A mouth reads a word by its vowel | The initialiser now scans for the vowel first and only falls back to consonant shapes for words without one; the tests that encoded my wrong guesses were corrected, not deleted | `VisemeTests`, 6/6 passing |
+

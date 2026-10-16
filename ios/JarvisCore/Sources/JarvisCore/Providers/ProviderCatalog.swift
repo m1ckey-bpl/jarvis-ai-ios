@@ -42,9 +42,9 @@ public enum ProviderCatalog {
             kind: .openAICompatible,
             baseURL: "https://api.groq.com/openai/v1",
             defaultModel: "openai/gpt-oss-120b",
-            models: ["openai/gpt-oss-120b", "openai/gpt-oss-20b"],
+            models: ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"],
             hasFreeTier: true,
-            freeTierNote: "Free tier: roughly 30 requests/min and 1,000 requests/day per model with an 8k token/min ceiling. Speeds are very high, but the daily token cap is the real limit.",
+            freeTierNote: "Free tier, no credit card: roughly 30 requests/min and 1,000 requests/day per model, with a daily token cap that is the real limit. Llama models left the free plan in August 2026 — gpt-oss and qwen are the free families now. Press “List models” for your key's own list.",
             keyInstructions: "Create a free account at console.groq.com, open API Keys, create a key, then paste it here. No credit card is required.",
             signupURL: "https://console.groq.com/keys"
         ),
@@ -54,9 +54,9 @@ public enum ProviderCatalog {
             kind: .gemini,
             baseURL: "https://generativelanguage.googleapis.com/v1beta",
             defaultModel: "gemini-2.5-flash",
-            models: ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"],
+            models: ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"],
             hasFreeTier: true,
-            freeTierNote: "Free tier for the Flash/Flash-Lite families with generous daily request counts (limits are shown live in AI Studio and change over time). Free-tier prompts may be used to improve Google products outside the EEA/UK/CH — do not send sensitive content.",
+            freeTierNote: "Free tier, no credit card: Flash and Flash-Lite families only — Pro models became paid-only in 2026 and are deliberately not offered here. Google publishes the live numbers in AI Studio and changes them; press “List models” to see exactly what your key can use. Free-tier prompts may be used to improve Google products outside the EEA/UK/CH — do not send sensitive content.",
             keyInstructions: "Sign in at aistudio.google.com, click “Get API key”, create a key in a project, then paste it here. No credit card is required.",
             signupURL: "https://aistudio.google.com/app/apikey"
         ),

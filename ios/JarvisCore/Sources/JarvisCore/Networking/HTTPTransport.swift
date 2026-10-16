@@ -182,15 +182,47 @@ public struct URLSessionTransport: HTTPTransport {
         }
     }
 
+    /// Extracts the human-readable message providers put in their error bodies.
+    /// OpenAI-compatible: `{"error": {"message": ...}}` · Gemini: `{"error": {"message": ...,
+    /// "status": ...}}`. Returns nil rather than guessing.
+    static func providerMessage(from body: String) -> String? {
+        guard let data = body.data(using: .utf8),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        if let error = root["error"] as? [String: Any] {
+            if let message = error["message"] as? String { return message }
+            if let status = error["status"] as? String { return status }
+        }
+        if let message = root["message"] as? String { return message }
+        return nil
+    }
+
     static func mapStatus(_ status: Int, body: String, headers: [String: String]) -> JarvisError {
+        let detail = providerMessage(from: body)
         switch status {
-        case 401, 403: return .providerUnauthorized("the provider rejected the credential (HTTP \(status))")
+        case 401, 403:
+            // Keep the bare wording when the provider said nothing (existing tests and
+            // log greps rely on it), and quote the provider when it did.
+            guard let detail else {
+                return .providerUnauthorized("the provider rejected the credential (HTTP \(status))")
+            }
+            return .providerUnauthorized("the provider rejected the credential (HTTP \(status)) — \(detail)")
         case 429:
             let retry = headers["retry-after"].flatMap { Int($0) }
             return .providerQuotaExceeded(retryAfterSeconds: retry)
-        case 400, 404: return .providerBadResponse("provider returned HTTP \(status): \(body.prefix(200))")
+        case 400 where detail?.lowercased().contains("api key") == true:
+            // Google answers an invalid key with 400, not 401.
+            return .providerUnauthorized("the provider rejected the credential (HTTP 400) — \(detail ?? "")")
+        case 404:
+            let modelHint = "the model name was not found for this key — open Settings ▸ AI Providers and press “List models” to see what your key can use"
+            if let detail { return .providerBadResponse("HTTP 404 — \(detail). \(modelHint)") }
+            return .providerBadResponse("HTTP 404 — \(modelHint)")
+        case 400:
+            let detailText = detail.map { " — \($0)" } ?? ""
+            return .providerBadResponse("provider returned HTTP 400\(detailText): \(body.prefix(200))")
         case 500...599: return .network("provider is having trouble (HTTP \(status))")
-        default: return .providerBadResponse("unexpected HTTP \(status)")
+        default:
+            let detailText = detail.map { " — \($0)" } ?? ""
+            return .providerBadResponse("unexpected HTTP \(status)\(detailText)")
         }
     }
 }

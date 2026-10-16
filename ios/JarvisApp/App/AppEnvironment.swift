@@ -27,6 +27,10 @@ public final class AppEnvironment: ObservableObject {
     public private(set) var integrations: IntegrationHub?
     public private(set) var providerRegistry: ProviderRegistry?
 
+    /// One shared HTTP client for every outbound call, so timeouts and retry policy are
+    /// identical everywhere — and so Settings can run a live model listing against the
+    /// same transport the assistant uses.
+    public let httpTransport: HTTPTransport = URLSessionTransport()
     public let secrets: KeychainSecretStore
     public let providerSettings: ProviderSettingsStore
     public let capabilityRegistry = CapabilityRegistry()
@@ -79,13 +83,14 @@ public final class AppEnvironment: ObservableObject {
         let executor = ToolExecutor(registry: registry, log: toolLog)
 
         let integrations = IntegrationHub(secrets: secrets, capabilities: capabilityRegistry, calendar: calendar)
-        let providerRegistry = ProviderRegistry(secrets: secrets, settingsStore: providerSettings)
+        let providerRegistry = ProviderRegistry(secrets: secrets, transport: httpTransport,
+                                                settingsStore: providerSettings)
 
         let orchestrator = AgentOrchestrator(
             memory: memory, conversations: conversations, contextManager: context,
             registry: registry, executor: executor, providerRegistry: providerRegistry,
             settingsStore: providerSettings, capabilities: capabilityRegistry,
-            integrations: integrations, transport: URLSessionTransport(), secrets: secrets
+            integrations: integrations, transport: httpTransport, secrets: secrets
         )
         orchestrator.reminderEngine = reminderEngine
 

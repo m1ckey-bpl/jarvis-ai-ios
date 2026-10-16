@@ -214,3 +214,35 @@ GitHub Release, in addition to the 90-day workflow artifact.
 round to signing, and a checksum they can verify independently.
 **Consequences:** Releases contain an *unsigned* build; the release notes say so, and the
 signing step remains entirely the user's.
+
+### D19 — Saving a key activates the provider it belongs to
+**Date:** 2026-10-16 · **Status:** ACCEPTED (supersedes the "save only if nothing is
+saved" shortcut in `ProviderSettingsView.runTest()`)
+**Decision:** Storing an API key and selecting a provider are one action. Every save path
+(key save, configuration save, connection test) writes `ProviderSettings` for the provider
+on screen and marks it active. The screen shows which provider is active separately from
+which one is being edited.
+**Rationale:** The v1.0.0 device build sent a freshly pasted Gemini key to a previously
+saved Groq configuration and reported `401 Invalid API Key`, while an unsaved provider
+produced "I can't reach a language model yet" — two symptoms, one cause: the app persisted
+half of the user's intent. A settings screen that stores a credential without storing what
+the credential is *for* is worse than one that refuses to save.
+**Consequences:** Saving is never a no-op, so the user always knows the app's state; the
+trade-off is that a save has an immediate effect on the next message, which is why the
+Active-provider card exists.
+
+### D20 — The face's mouth follows real speech events, and the maths lives in the engine
+**Date:** 2026-10-16 · **Status:** ACCEPTED
+**Decision:** The animated face is driven by `AVSpeechSynthesizer`'s own
+`willSpeakRangeOfSpeechString` callbacks: the word being voiced maps to a `Viseme` and a
+jaw opening, and the jaw breathes within a word from the utterance meter. The viseme maths
+lives in `JarvisCore` (not in the view), and the parallax uses CoreMotion attitude with an
+honest ambient drift when there is no sensor or Reduce Motion is on.
+**Rationale:** A lip-sync animation that runs on a timer is a lie that costs
+verification: it looks the same whether or not speech is happening. Driving it from the
+synthesizer's real progress means the mouth stops when the voice stops, and the mapping
+becomes ordinary pure logic that the CI test suite can cover — which is where the
+vowel-first defect was found and fixed.
+**Consequences:** `Viseme` and its tests live in the engine (6 tests); no audio analysis is
+simulated and no fake waveform is produced. `Viseme(pronouncing:)` reads a word by its
+vowel, not by its first letter — the first test run proved that this mattered.

@@ -95,13 +95,31 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
 - **Residual risk:** an API change on a provider side would only surface at the user's first live
   call. The error taxonomy maps such failures to actionable messages rather than silent ones.
 
-### K13 — Nothing has run on a device · **S2** · OPEN
-- **Symptom:** The IPA is verified structurally and the app compiles, but no code has executed
-  on hardware: orb animations, haptics, VoiceOver, Dynamic Type, Reduce Motion, notification
-  scheduling and delivery, microphone and speech permission flows.
-- **Impact:** A runtime crash or an accessibility/layout defect would surface only here. The 219
-  unit tests cover the logic, which reduces but does not remove this risk.
-- **Handling:** `docs/DEFINITION_OF_DONE.md` §3 is a 14-step manual checklist for exactly this,
-  about ten minutes after signing.
-- **Next step:** sign the IPA with the user's own method, install, walk the checklist, and
-  replace the *not verified* rows with observed results.
+### K13 — Nothing has run on a device · **S2** · PARTLY CLOSED, RE-OPENED FOR 1.1.0
+- **Symptom:** The v1.0.0 IPA was installed and used on a real iPhone (this closed the
+  "has anyone ever run this?" question) and produced three findings: the API key appeared
+  not to work, some controls were unreachable, and the UI was judged too basic. All three
+  are addressed in 1.1.0 (see `docs/TEST_REPORT.md` §7 and `DECISIONS.md` D19/D20).
+- **Impact:** The v1.1.0 build has *not* been run on hardware: the corrected provider
+  flow, the new layout, the face, the parallax, plus everything the checklist covers
+  (haptics, VoiceOver, Dynamic Type, Reduce Motion, notification delivery, microphone and
+  speech permission flows).
+- **Handling:** `docs/DEFINITION_OF_DONE.md` §3 is the manual checklist; the two most
+  valuable steps for this cycle are (1) paste a real key, press **List models**, then
+  **Run test**, and (2) scroll every screen to its last row and tap the last control.
+- **Next step:** the user signs `JarvisApp-1.1.0-unsigned.ipa`, installs it, and reports
+  what actually happens — including "no change", which would be a finding too.
+
+### K14 — The SwiftUI view layer has no unit tests · **S3** · OPEN (accepted)
+- **Symptom:** Engine logic is covered by 127 tests; the app's views
+  (`JarvisFace`, `SpatialScene`, `NavigationShell`, `ProviderSettingsView`) are covered by
+  the CI compile and by manual device checks only.
+- **Impact:** A layout or hit-testing defect can reach a build. That is exactly what
+  happened in v1.0.0 (the tab bar covering content), and no unit test would have caught it.
+- **Handling:** the views deliberately hold no business logic — state machines, viseme
+  maths, discovery, error mapping and persistence all live in the tested engine — and
+  `docs/DEFINITION_OF_DONE.md` §3 walks the interaction paths on a device.
+- **Residual risk:** accepted, with the reasoning recorded rather than hidden: adding a UI
+  test target would require a macOS-only test scheme and would still not reproduce the
+  safe-area and hit-testing behaviour of real hardware. The cheaper control is the device
+  checklist, performed by the person who owns the phone.

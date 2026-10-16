@@ -27,6 +27,9 @@ Priority: P0 = release gate · P1 = important · P2 = nice-to-have
 
 | # | Requirement | Status |
 |---|---|---|
+| G21 | Fix what the first device build found: key-save must activate the provider, the tab bar must not cover content, and the UI must have the face and depth the user asked for | **DONE (1.1.0)** — see `docs/TEST_REPORT.md` §7: activation-on-save, `VStack` layout with 44 pt targets, `JarvisFace` with speech-driven lips, spatial layer |
+| G22 | Re-verify on the device with the 1.1.0 IPA | **OPEN — blocked on the user's signing step.** The two acceptance-critical steps: paste a real key → List models → Run test; and tap the last control on every screen |
+| G23 | Tag `v1.1.0` and attach the rebuilt IPA + checksum to a Release | **OPEN — next action after the CI run for this push is green** |
 | G1 | GitHub repo contains the source code | DONE — public repository, `main` + tag `v1.0.0` |
 | G2 | Spec + engineering memory committed | DONE |
 | G3 | Native iOS project exists | DONE — compiles under Xcode 15.4 (CI #5) |

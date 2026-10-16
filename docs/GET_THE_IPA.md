@@ -111,8 +111,11 @@ runs on Linux, so I will:
   leftover entitlements — i.e. that it really is unsigned;
 * recompute the SHA-256 and compare it with the workflow summary.
 
-`./scripts/verify_unsigned_ipa.sh dist/JarvisApp-1.0.0-unsigned.ipa` does the same
-on your machine.
+`./scripts/verify_unsigned_ipa.sh dist/JarvisApp-1.1.0-unsigned.ipa` does the same
+on your machine. (The version comes from the project file, so the name changes when the
+version does — `1.1.0` is the build that fixes the provider-key bug and the covered
+buttons reported from the first device install; `1.0.0` stays available on its own
+release page if you ever want to compare.)
 
 ---
 
@@ -121,8 +124,8 @@ on your machine.
 Artifacts are deleted after 90 days. For a permanent link:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag -a v1.1.0 -m "JARVIS 1.1.0 — provider activation fix, layout fix, animated face, spatial UI"
+git push origin v1.1.0
 ```
 
 A `v*` tag makes the workflow create a **GitHub Release** and attach the `.ipa` and

@@ -193,10 +193,21 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
     @Published public private(set) var isSpeaking = false
     @Published public private(set) var level: Double = 0
     @Published public private(set) var levels: [Double] = Array(repeating: 0, count: 28)
+    /// The letter shape the voice is producing right now, and how far the jaw is open.
+    /// Both come from `willSpeakRangeOfSpeechString` — the synthesiser's own progress —
+    /// so the face's mouth follows the words instead of running a decorative loop.
+    @Published public private(set) var viseme: Viseme = .rest
+    @Published public private(set) var jawOpen: Double = 0
+    /// The range of `spokenText` currently being voiced (for word highlighting).
+    @Published public private(set) var speakingRange: NSRange?
+    @Published public private(set) var spokenText: String = ""
     public var onFinish: (() -> Void)?
 
     private let synthesizer = AVSpeechSynthesizer()
     private var voiceIdentifier: String?
+    /// Target jaw opening for the word currently being spoken; the metering loop
+    /// modulates around it so the mouth keeps moving *within* a word.
+    private var visemeTarget: Double = 0
     private var meteringTask: Task<Void, Never>?
 
     public override init() {
@@ -227,6 +238,10 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
         utterance.rate = rate
         utterance.pitchMultiplier = pitch
         utterance.postUtteranceDelay = 0.05
+        spokenText = utterance.speechString
+        viseme = .rest
+        jawOpen = 0
+        visemeTarget = 0
         synthesizer.speak(utterance)
     }
 
@@ -237,6 +252,10 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
         if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
         isSpeaking = false
         levels = Array(repeating: 0, count: levels.count)
+        viseme = .rest
+        jawOpen = 0
+        visemeTarget = 0
+        speakingRange = nil
     }
 
     /// Strips markdown and code fences so the voice never reads asterisks aloud.
@@ -267,6 +286,10 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
             self.meteringTask?.cancel()
             self.isSpeaking = false
             self.levels = Array(repeating: 0, count: self.levels.count)
+            self.viseme = .rest
+            self.jawOpen = 0
+            self.visemeTarget = 0
+            self.speakingRange = nil
             self.onFinish?()
         }
     }
@@ -275,6 +298,24 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
         Task { @MainActor in
             self.meteringTask?.cancel()
             self.isSpeaking = false
+        }
+    }
+
+    /// Called by AVSpeechSynthesizer for every word as it is spoken. This is the honest
+    /// signal behind the animated mouth.
+    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                              willSpeakRangeOfSpeechString characterRange: NSRange,
+                                              utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            self.speakingRange = characterRange
+            let text = utterance.speechString as NSString
+            guard characterRange.location >= 0,
+                  characterRange.location + characterRange.length <= text.length else { return }
+            let word = text.substring(with: characterRange)
+            self.viseme = Viseme(pronouncing: word)
+            // Jaw opening tracks how "open" the vowel shapes are in this word, and the
+            // metering loop keeps it moving between word boundaries.
+            self.visemeTarget = Viseme.opening(for: word)
         }
     }
 
@@ -295,6 +336,9 @@ public final class SpeechSynthesizerService: NSObject, ObservableObject, AVSpeec
                 buffer.removeFirst()
                 buffer.append(envelope)
                 self.levels = buffer
+                // Mouth: viseme target from the real speech events, breathing slightly
+                // with the utterance envelope so it never looks like a static shape.
+                self.jawOpen = min(1.0, self.visemeTarget * (0.55 + 0.45 * envelope))
                 try? await Task.sleep(nanoseconds: 80_000_000)
             }
         }

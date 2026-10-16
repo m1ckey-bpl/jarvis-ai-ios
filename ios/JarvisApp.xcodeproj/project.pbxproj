@@ -10,8 +10,10 @@
 		95DCFE34FEEB47F99259068D = {isa = PBXBuildFile; fileRef = CE3E7F781A64843DF2DADF1D /* AppEnvironment.swift */; };
 		BC7C9E14FF03048417D161D1 = {isa = PBXBuildFile; fileRef = 26A8C069AEACC91105581A1B /* JarvisAppMain.swift */; };
 		77BDE7D6B2C0B68261EEFD97 = {isa = PBXBuildFile; fileRef = 6D316654CAC6B81BB8786578 /* JarvisComponents.swift */; };
+		33270D50D7D33F3CF2A9D1C9 = {isa = PBXBuildFile; fileRef = 4CD1B7A4225B8C8CD46502C0 /* JarvisFace.swift */; };
 		C10ABA5940A0709C6E7806DA = {isa = PBXBuildFile; fileRef = EE72E455B8D5FFB84CDF6359 /* JarvisOrb.swift */; };
 		A26DE41D101254001B5EDF44 = {isa = PBXBuildFile; fileRef = 64EDAE7752CD798FEDCD6896 /* JarvisTheme.swift */; };
+		3408F3F1BBF2156B1701741A = {isa = PBXBuildFile; fileRef = EABB1C2E2EFE0132F89EED0D /* SpatialScene.swift */; };
 		EBBDEE67A4C6E97CDE8E333B = {isa = PBXBuildFile; fileRef = DBE1DBD21399A0877D4D1D6D /* AssistantViewModel.swift */; };
 		022FD4A77EA58664B8655569 = {isa = PBXBuildFile; fileRef = 5E49ADCBE3A06D0DC0FAEAAF /* Assets.xcassets */; };
 		44446FB7323AEF2A3482365A = {isa = PBXBuildFile; fileRef = 6F298324B9AECA3EBF5380ED /* AssistantHomeView.swift */; };
@@ -60,6 +62,7 @@
 		285E44128CD4EB5F03B1F12D = {isa = PBXBuildFile; fileRef = D1659782D95A76003B092102 /* SSE.swift */; };
 		F27BB3A0AB17E729FAAC8AB0 = {isa = PBXBuildFile; fileRef = 84C739B272D131557F62E29C /* ChatModel.swift */; };
 		28ED8E244794CFC1B3D9C913 = {isa = PBXBuildFile; fileRef = AEA3183A6BB65FCB9B164F6B /* GeminiProvider.swift */; };
+		27933A8BFD50EBF562A33BEE = {isa = PBXBuildFile; fileRef = D09A16561DC93560CE98EF7B /* ModelDiscovery.swift */; };
 		782CE90FC6A886C23019F76E = {isa = PBXBuildFile; fileRef = FFF3B722CAED14BC5D6BDF4A /* OpenAICompatibleProvider.swift */; };
 		EC9AADB1EE31BF799FA39E09 = {isa = PBXBuildFile; fileRef = B1FD7D6EE61B140EAAED76F4 /* ProviderCatalog.swift */; };
 		4300F502ED787D59D7DCD103 = {isa = PBXBuildFile; fileRef = A3145BFBB49395648015E7E4 /* DateTimeParser.swift */; };
@@ -71,14 +74,17 @@
 		C3079145D2D943B88BE74F12 = {isa = PBXBuildFile; fileRef = 89379596CFAB0AAC4136B85B /* ToolDefinition.swift */; };
 		9B06E1726CD94732F2936054 = {isa = PBXBuildFile; fileRef = DB4A6945B26CCB21A8D61483 /* ToolExecutor.swift */; };
 		99537884882573A0DA29B128 = {isa = PBXBuildFile; fileRef = 0D427E853B2D622DAA091D2F /* ToolRegistry.swift */; };
+		7CB7273A78E1AE3EF187B655 = {isa = PBXBuildFile; fileRef = DDA51989BF927EE2C276157D /* Viseme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		CE3E7F781A64843DF2DADF1D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		26A8C069AEACC91105581A1B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisAppMain.swift; sourceTree = "<group>"; };
 		6D316654CAC6B81BB8786578 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisComponents.swift; sourceTree = "<group>"; };
+		4CD1B7A4225B8C8CD46502C0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisFace.swift; sourceTree = "<group>"; };
 		EE72E455B8D5FFB84CDF6359 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisOrb.swift; sourceTree = "<group>"; };
 		64EDAE7752CD798FEDCD6896 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisTheme.swift; sourceTree = "<group>"; };
+		EABB1C2E2EFE0132F89EED0D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialScene.swift; sourceTree = "<group>"; };
 		DBE1DBD21399A0877D4D1D6D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantViewModel.swift; sourceTree = "<group>"; };
 		5E49ADCBE3A06D0DC0FAEAAF = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6F298324B9AECA3EBF5380ED = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantHomeView.swift; sourceTree = "<group>"; };
@@ -127,6 +133,7 @@
 		D1659782D95A76003B092102 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSE.swift; sourceTree = "<group>"; };
 		84C739B272D131557F62E29C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
 		AEA3183A6BB65FCB9B164F6B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiProvider.swift; sourceTree = "<group>"; };
+		D09A16561DC93560CE98EF7B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscovery.swift; sourceTree = "<group>"; };
 		FFF3B722CAED14BC5D6BDF4A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleProvider.swift; sourceTree = "<group>"; };
 		B1FD7D6EE61B140EAAED76F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderCatalog.swift; sourceTree = "<group>"; };
 		A3145BFBB49395648015E7E4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeParser.swift; sourceTree = "<group>"; };
@@ -138,6 +145,7 @@
 		89379596CFAB0AAC4136B85B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefinition.swift; sourceTree = "<group>"; };
 		DB4A6945B26CCB21A8D61483 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolExecutor.swift; sourceTree = "<group>"; };
 		0D427E853B2D622DAA091D2F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolRegistry.swift; sourceTree = "<group>"; };
+		DDA51989BF927EE2C276157D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viseme.swift; sourceTree = "<group>"; };
 		3C7A4C93F4B6A470AD9F5136 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D6825761A76844AC5BD7569 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "JarvisApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -166,8 +174,10 @@
 			isa = PBXGroup;
 			children = (
 				6D316654CAC6B81BB8786578,
+				4CD1B7A4225B8C8CD46502C0,
 				EE72E455B8D5FFB84CDF6359,
 				64EDAE7752CD798FEDCD6896,
+				EABB1C2E2EFE0132F89EED0D,
 			);
 			path = Design;
 			sourceTree = "<group>";
@@ -300,6 +310,7 @@
 			children = (
 				84C739B272D131557F62E29C,
 				AEA3183A6BB65FCB9B164F6B,
+				D09A16561DC93560CE98EF7B,
 				FFF3B722CAED14BC5D6BDF4A,
 				B1FD7D6EE61B140EAAED76F4,
 			);
@@ -336,6 +347,14 @@
 			path = Tools;
 			sourceTree = "<group>";
 		};
+		7EEE759E9D38C289DB0F04F7 = {
+			isa = PBXGroup;
+			children = (
+				DDA51989BF927EE2C276157D,
+			);
+			path = Voice;
+			sourceTree = "<group>";
+		};
 		26C7D2FA6FE5BB285B978880 = {
 			isa = PBXGroup;
 			children = (
@@ -364,6 +383,7 @@
 				B9DEC1B82D86528791514466,
 				AF122BA294A281EF09DE2EAF,
 				E5C05FB3B85F35AFD1399118,
+				7EEE759E9D38C289DB0F04F7,
 			);
 			path = JarvisCore/Sources/JarvisCore;
 			sourceTree = "<group>";
@@ -460,9 +480,12 @@
 				2360A2C2EF50608245C74DA4,
 				269BFD8F9D2C27C6A43F547E,
 				2783B49A372C20CC24C28785,
+				27933A8BFD50EBF562A33BEE,
 				285E44128CD4EB5F03B1F12D,
 				28ED8E244794CFC1B3D9C913,
 				2B3831169D28B5136EA52109,
+				33270D50D7D33F3CF2A9D1C9,
+				3408F3F1BBF2156B1701741A,
 				38D720AEF6F6F31E25477CEF,
 				40D69A50FBE52F7BF1DA6370,
 				4300F502ED787D59D7DCD103,
@@ -477,6 +500,7 @@
 				782CE90FC6A886C23019F76E,
 				797A055D279E1F6EF4C5115D,
 				7B13FB7ECEF0960E1DAE4BA0,
+				7CB7273A78E1AE3EF187B655,
 				7CBD934DE54F9D34A400F7F2,
 				8188FA196F053C999C83EFB4,
 				8727071FD857B9F7AD1BC148,
@@ -535,7 +559,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -552,7 +576,7 @@
 				INFOPLIST_FILE = JarvisApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -585,7 +609,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -599,7 +623,7 @@
 				INFOPLIST_FILE = JarvisApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-lsqlite3";
@@ -630,7 +654,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -647,7 +671,7 @@
 				INFOPLIST_FILE = JarvisApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -680,7 +704,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -694,7 +718,7 @@
 				INFOPLIST_FILE = JarvisApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-lsqlite3";

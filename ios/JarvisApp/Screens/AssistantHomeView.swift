@@ -1,10 +1,15 @@
 import SwiftUI
 
-/// The main screen: orb, live state, transcript, composer, status rail.
+/// The main screen: JARVIS's face, live state, transcript, composer, status rail.
+///
+/// The face is the centre of the screen because that is where the assistant's state
+/// lives: eyes, brow light, mouth and halo all read from the same engine state the rest
+/// of the app uses. Nothing on this screen animates for decoration.
 public struct AssistantHomeView: View {
 
     @ObservedObject var model: AssistantViewModel
     @EnvironmentObject private var environment: AppEnvironment
+    @EnvironmentObject private var parallax: MotionParallax
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var composerFocused: Bool
@@ -20,7 +25,7 @@ public struct AssistantHomeView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: JarvisTheme.Spacing.m) {
-                        orbSection
+                        faceSection
                         statusRail
                         ForEach(model.transcript) { item in
                             TranscriptRow(item: item).id(item.id)
@@ -64,10 +69,14 @@ public struct AssistantHomeView: View {
     private var header: some View {
         HStack(alignment: .center, spacing: JarvisTheme.Spacing.s) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("JARVIS")
-                    .font(JarvisTheme.Typography.micro)
-                    .tracking(3)
-                    .foregroundStyle(JarvisTheme.Palette.tertiaryText(scheme))
+                HStack(spacing: 6) {
+                    JarvisOrb(state: model.state, audioLevel: model.orbLevel, size: 18)
+                        .accessibilityHidden(true)
+                    Text("JARVIS")
+                        .font(JarvisTheme.Typography.micro)
+                        .tracking(3)
+                        .foregroundStyle(JarvisTheme.Palette.tertiaryText(scheme))
+                }
                 Text(model.state.label)
                     .font(JarvisTheme.Typography.title)
                     .foregroundStyle(JarvisTheme.Palette.primaryText(scheme))
@@ -87,7 +96,10 @@ public struct AssistantHomeView: View {
                     Haptics.tap()
                     Task { await model.startNewConversation() }
                 } label: {
-                    Image(systemName: "plus.bubble").font(.system(size: 15, weight: .semibold))
+                    Image(systemName: "plus.bubble")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 44, height: 44)          // full tap target
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("New conversation")
 
@@ -95,7 +107,10 @@ public struct AssistantHomeView: View {
                     Haptics.tap()
                     showsHistory = true
                 } label: {
-                    Image(systemName: "clock.arrow.circlepath").font(.system(size: 15, weight: .semibold))
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Conversation history")
             }
@@ -107,22 +122,51 @@ public struct AssistantHomeView: View {
         .padding(.top, JarvisTheme.Spacing.s)
     }
 
-    // MARK: Orb
+    // MARK: Face
 
-    private var orbSection: some View {
-        VStack(spacing: JarvisTheme.Spacing.m) {
-            JarvisOrb(state: model.state, audioLevel: model.orbLevel,
-                      size: 236)
-                .padding(.top, JarvisTheme.Spacing.s)
+    /// The face, driven by real engine state: the speech synthesiser reports the word it
+    /// is voicing (`viseme`/`jawOpen`) and the microphone reports its level while
+    /// listening. The gaze follows the device's own tilt.
+    private var faceSection: some View {
+        VStack(spacing: JarvisTheme.Spacing.s) {
+            Button {
+                if environment.speechSynthesizer.isSpeaking {
+                    model.stopSpeaking()
+                } else if model.isDictating {
+                    Task { await model.toggleDictation() }
+                }
+            } label: {
+                JarvisFace(state: model.state,
+                           mouth: environment.speechSynthesizer.jawOpen,
+                           viseme: environment.speechSynthesizer.viseme,
+                           gaze: CGSize(width: parallax.roll, height: parallax.pitch),
+                           size: 168,
+                           listeningLevel: environment.speechRecognizer.level)
+            }
+            .buttonStyle(.plain)
+            .disabled(!environment.speechSynthesizer.isSpeaking && !model.isDictating)
+            .accessibilityHint(environment.speechSynthesizer.isSpeaking
+                               ? "Double tap to stop speaking"
+                               : (model.isDictating ? "Double tap to stop listening" : ""))
 
             if model.isDictating || model.state == .speaking {
                 AudioWaveformView(levels: model.waveformLevels,
                                   isActive: true,
                                   tint: model.state == .speaking ? JarvisTheme.Palette.silver : JarvisTheme.Palette.cyan)
                     .padding(.horizontal, JarvisTheme.Spacing.xl)
+                    .transition(.opacity)
+            }
+
+            if model.state == .speaking {
+                Text("Speaking — tap the face to interrupt")
+                    .font(JarvisTheme.Typography.micro)
+                    .foregroundStyle(JarvisTheme.Palette.tertiaryText(scheme))
+                    .transition(.opacity)
             }
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, JarvisTheme.Spacing.xs)
+        .animation(JarvisTheme.Motion.gentle, value: model.state)
         .accessibilityElement(children: .contain)
     }
 
@@ -170,9 +214,11 @@ public struct AssistantHomeView: View {
                     Task { await model.toggleDictation() }
                 } label: {
                     Image(systemName: model.isDictating ? "waveform.circle.fill" : "mic.circle.fill")
-                        .font(.system(size: 30, weight: .regular))
+                        .font(.system(size: 26, weight: .regular))
                         .foregroundStyle(model.isDictating ? JarvisTheme.Palette.cyan : JarvisTheme.Palette.ice)
                         .symbolEffect(.pulse, isActive: model.isDictating)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(model.isDictating ? "Stop dictation" : "Start dictation")
@@ -196,8 +242,10 @@ public struct AssistantHomeView: View {
                         model.cancel()
                     } label: {
                         Image(systemName: "stop.circle.fill")
-                            .font(.system(size: 30))
+                            .font(.system(size: 26))
                             .foregroundStyle(JarvisTheme.Palette.rose)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Stop")
@@ -206,7 +254,9 @@ public struct AssistantHomeView: View {
                         Task { await model.send() }
                     } label: {
                         Image(systemName: "arrow.up.circle.fill")
-                            .font(.system(size: 30))
+                            .font(.system(size: 26))
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                             .foregroundStyle(model.composerText.trimmingCharacters(in: .whitespaces).isEmpty
                                              ? JarvisTheme.Palette.tertiaryText(scheme)
                                              : JarvisTheme.Palette.ice)
@@ -241,7 +291,7 @@ public struct AssistantHomeView: View {
         }
         .padding(.horizontal, JarvisTheme.Spacing.m)
         .padding(.top, JarvisTheme.Spacing.s)
-        .padding(.bottom, JarvisTheme.Spacing.m)
+        .padding(.bottom, JarvisTheme.Spacing.xs)
     }
 
     private var isWorking: Bool {

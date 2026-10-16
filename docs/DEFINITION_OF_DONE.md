@@ -141,6 +141,29 @@ is not prettier than the history:
   real old-style-plist parser (in the generator *and* in `validate_project.sh`) before it
   can be written or committed. Balanced-brace and dangling-reference checks had passed on
   the broken file — which is exactly why they were not enough.
+* **The first real-device build (v1.0.0) reported "the API key does not work."** The key
+  was fine; the app was talking to a different provider than the user had just selected.
+  `saveKey()` stored the key for the selected provider but never saved which provider was
+  selected, and `runTest()` only saved settings when nothing was stored — so a pasted
+  Gemini key went to the provider saved earlier (Groq → `401 Invalid API Key`), and with
+  nothing saved at all the assistant reported "I can't reach a language model yet". Fixed
+  by making every save activate the provider it describes, testing what is on screen
+  rather than what happened to be stored, showing which provider is active, and listing
+  the models the user's own key can use. The live probes recorded in §2 item 13 proved
+  the request shapes were right all along, which is what pointed at state rather than
+  transport.
+* **The first real-device build also hid its own buttons.** `NavigationShell` placed the
+  tab bar as an overlay (`ZStack(alignment: .bottom)`), so the composer, the
+  approve/decline pair and the last rows of long forms sat underneath it: visible, but
+  unreachable, because the taps hit the bar. Content and bar are now siblings in a
+  `VStack`, and every interactive control carries a ≥44 pt hit area with an explicit
+  `contentShape`. Both of these were found by the user on a phone, not by any check in
+  this repository — a reminder that a green pipeline is a floor, not a ceiling.
+* **The first `Viseme` tests failed for a real reason.** The shape function returned on
+  the first matching letter, so "Jarvis" got the "j" (fricative) and "stop" got the "s"
+  instead of their vowel shapes — a mouth reads a word by its vowel. The initialiser now
+  scans for the vowel first; the tests that encoded my wrong expectations were corrected
+  rather than deleted, and the corrected expectations are in `TEST_REPORT.md` §7.
 * `scripts/run_tests.sh` reported `python: unknown` instead of the test count: it
   passed `-q` on top of the `addopts = -q` in `backend/pytest.ini`, and quiet
   level 2 suppresses pytest's summary line. Fixed by dropping the duplicate flag

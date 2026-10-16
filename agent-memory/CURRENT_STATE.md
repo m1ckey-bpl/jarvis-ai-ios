@@ -1,61 +1,98 @@
 # CURRENT STATE — jarvis-ai-ios
 
-**Last updated:** 2026-10-16 · **Updated by:** the build session
+**Last updated:** 2026-10-16 (second cycle, after the first device build)
+**Version in the tree:** 1.1.0 · **CI status:** pushed, run in progress
+**One-line summary:** v1.0.0 was installed on a real iPhone and produced three honest
+defects; all three are fixed in 1.1.0, the engine grew to 127 tests and the repository
+validation to 82 checks — both green locally, with CI running on the push.
 
-## Status in one line
+## What v1.0.0 looked like on the device
 
-**Shipped.** The engine (107 tests), the backend (112 tests) and the repository
-validation (82 checks) are green; the SwiftUI app compiles under Xcode 15.4 on a free
-`macos-14` runner; the unsigned IPA exists, is verified and is published as a GitHub
-Release asset. What has never been exercised is anything that needs a **device** or a
-**live credential** (runtime behaviour, provider calls, OAuth, notifications).
+The user's report, verbatim in substance: the UI is "so basic", the Gemini key paste
+"does not work", some buttons are hidden or outside the frame, some buttons do not
+respond to taps, and they want an animated human face whose lips move while JARVIS
+speaks plus a spatial UI.
 
-## The artefact
+Three of those were real defects, one was a design gap:
 
-| | |
-|---|---|
-| File | `JarvisApp-1.0.0-unsigned.ipa` — run #5 artifact: 3,611,746 bytes, in the workspace at `~/JARVIS-unsigned-ipa/` |
-| | release `v1.0.0` asset (rebuilt, run #6): 3,611,884 bytes, in the same folder |
-| SHA-256 | `d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33` (artifact) · `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb` (release) — both verified, both matching their published checksum |
-| Built by | CI run #5 — https://github.com/m1ckey-bpl/jarvis-ai-ios/actions/runs/38907603168 |
-| Bundle | `ai.jarvis.assistant`, minimum iOS 17.0, arm64 |
-| Download | https://github.com/m1ckey-bpl/jarvis-ai-ios/releases/tag/v1.0.0 (permanent), or the run artifact (90 days) |
-| Signing | **unsigned** — no certificate, no profile, no entitlements; the user signs it |
+| Report | Root cause | Status |
+|---|---|---|
+| API key "does not work" | `saveKey()` wrote the key for the **selected** provider but never saved `ProviderSettings`, so no provider was active; `runTest()` only saved settings when nothing was stored, so a pasted Gemini key was sent to the previously saved Groq config → `401 Invalid API Key` | **FIXED** in 1.1.0 |
+| Buttons hidden / taps dead | `NavigationShell` laid the tab bar over the content (`ZStack(alignment: .bottom)`), so the composer, approve/decline and the last rows of long forms sat *under* the bar and their taps went to the bar | **FIXED** in 1.1.0 |
+| "Too basic", no face | v1.0.0 shipped a state orb and flat cards | **BUILT** in 1.1.0: animated face + spatial layer |
+| Viseme shape logic | first test run failed: the shape came from the first matching *letter*, so "Jarvis" was a fricative ("j") and "stop" a fricative ("s") | **FIXED** — the vowel decides the shape now |
 
-## Verified right now
+## Current numbers (all re-run after the fixes)
 
-* **Engine** (`ios/JarvisCore`): 107 tests / 0 failures — on Linux locally *and* on
-  `macos-14` in CI.
-* **Backend** (`backend/`, stdlib-only): 112 tests / 0 failures, `--check` startup OK,
-  refuses an insecure public bind.
-* **App layer** (`ios/JarvisApp`, 24 files): compiles, links and passes Xcode's bundle
-  validation; `** BUILD SUCCEEDED **`.
-* **Project file**: generated, parsed by a real old-style-plist parser, every reference
-  resolves, freshness asserted in CI.
-* **IPA**: zip integrity, `Payload/JarvisApp.app`, bundle id, `Assets.car`, app icon,
-  five usage strings, no signing material, no credential-shaped strings; SHA-256
-  recomputed independently and equal to the workflow's.
-* **CI**: three workflows; *Validate repository* and *iOS* green; *Backend* dispatched
-  manually and green. No `secrets.` reference in any workflow.
+| Check | Command | Result |
+|---|---|---|
+| Repository validation | `bash scripts/validate_project.sh` | **82 checks, 0 failures** |
+| Engine tests | `cd ios && swift build --build-tests && swift test --skip-build` | **127 tests, 0 failures** (was 107; +14 model-discovery, +6 viseme) |
+| Backend tests | `cd backend && python3 -m pytest` | **112 passed** |
+| Packaging path (no macOS needed) | `bash scripts/test_ipa_packaging.sh` | **passes** with a simulated `xcodebuild` |
+| Generated Xcode project | `python3 scripts/generate_xcode_project.py --check` | **fresh** — 171 objects, 22 groups, 67 Swift sources |
+| App-layer syntax | `swiftc -parse` over all 73 Swift files | **0 failures** |
 
-## The four defects CI found (all fixed, all in the record)
+## What changed in the tree this cycle
 
-1. A test the Linux toolchain accepted but Xcode 16 rejected (captured mutable state).
-2. The generated `project.pbxproj` was unreadable (`TARGETED_DEVICE_FAMILY = 1,2;`).
-3. A missing `import UIKit` in `Services.swift` — the app layer's only compile error.
-4. `build_unsigned_ipa.sh` mishandled a relative `--output` when packaging.
+* **`ProviderSettingsView`** — every save now activates the provider it describes
+  (`saveKeyAndActivate`), "Run test" activates the on-screen configuration first, an
+  **Active provider** card shows what the assistant will actually use (with a key
+  fingerprint, never the key), a **List models** button asks the provider what the user's
+  own key can use, and a copyable **Diagnostics** block reports the endpoint, model, key
+  fingerprint, HTTP status and the provider's own words.
+* **`ModelDiscovery.swift`** (engine, new) — `probe()` returns models *and* status *and*
+  the provider's message, never throwing away the reason; chat models are filtered and
+  ranked deterministically; the key travels in a header, never in a URL.
+* **`HTTPTransport.mapStatus`** — now quotes the provider's own error message, treats
+  Google's `400 INVALID_ARGUMENT: API key not valid` as an authentication problem, and
+  turns `404` into "the model name was not found for this key — press List models".
+* **`ProviderCatalog`** — free-tier notes corrected for mid-2026 reality (Gemini free =
+  Flash/Flash-Lite only, Pro is paid; Groq free = gpt-oss/qwen families, Llama left the
+  free plan in August 2026).
+* **`JarvisFace.swift`** (new) — original abstract android visage: polished cranium,
+  dark visor with two luminescent optics, seven-bar light mouth. The mouth is driven by
+  `AVSpeechSynthesizer.willSpeakRangeOfSpeechString` (words → viseme → jaw opening), so
+  the lips follow real speech events; `SpeechSynthesizerService` now publishes
+  `viseme`, `jawOpen` and `speakingRange`.
+* **`Viseme.swift`** (new, in the engine so CI tests it) — vowel-first shape maths.
+* **`SpatialScene.swift`** (new) — `MotionParallax` (CoreMotion attitude, smoothed, with
+  an honest ambient drift when no sensor / Reduce Motion), `SpatialBackdrop` (three
+  parallax strata + state-reactive light bloom), `SpatialSurface`, `.spatial(depth:)`.
+* **`NavigationShell`** — content and tab bar are siblings in a `VStack`; 44 pt targets.
+* **`AssistantHomeView`** — face replaces the bare orb, live mini-orb in the header,
+  44 pt targets throughout; tapping the face interrupts speech.
+* **Version** — `MARKETING_VERSION` 1.1.0, `CURRENT_PROJECT_VERSION` 2, so the new
+  artefact is `JarvisApp-1.1.0-unsigned.ipa` and cannot be confused with the old one.
 
-Details: `docs/TEST_REPORT.md` §6.
+## What is still NOT verified
 
-## Still unverified (needs hardware or accounts)
-
-1. **On-device behaviour**: orb states, haptics, VoiceOver, Dynamic Type, Reduce Motion,
-   notifications firing — the checklist in `docs/DEFINITION_OF_DONE.md` §3.
-2. **Live provider call** (needs the user's key) and **live OAuth** (Google/Meta).
-3. Anything that depends on a real free-tier quota or a sleeping backend host.
+* **The v1.1.0 app has never been compiled.** CI compiles it on this push; until that run
+  is green, the new SwiftUI code (face, spatial layer, reworked navigation and provider
+  screen) is syntax-checked only. This is the single biggest open risk.
+* **Nothing from v1.1.0 has run on a device.** The provider fix, the layout fix, the face
+  and the parallax all need one install to confirm.
+* **No live provider call has ever been made with a real key.** The request shapes are
+  verified against the real endpoints with deliberately invalid keys (HTTP 400/401 with
+  the providers' own messages), which is as far as this environment can go.
 
 ## Immediate next steps
 
-1. User signs the IPA and runs the §3 checklist; results replace the *not verified* rows.
-2. First live provider smoke test in Settings ▸ AI Providers.
-3. Optional: work the P2 backlog items in `TASK_BACKLOG.md`.
+1. Watch the CI run for this push; fix whatever the macOS compile reports (it is the
+   app layer's first compile each cycle — expect something small, as in iOS #3 and #4).
+2. Tag `v1.1.0` so the rebuilt IPA lands on a Release with its checksum.
+3. Hand the new IPA over; the user signs and installs it, then runs
+   `docs/DEFINITION_OF_DONE.md` §3 and — the important one — pastes their real key into
+   Settings ▸ AI Providers and presses **List models**, then **Run test**.
+
+## File-by-file quick index
+
+| Path | What it is |
+|---|---|
+| `ios/JarvisCore` | The engine: providers, discovery, memory, tools, reminders, security (39 sources) |
+| `ios/JarvisApp` | The SwiftUI app: 11 screens, design system, face, spatial layer (28 sources) |
+| `ios/JarvisTests` | 127 engine tests |
+| `backend/` | Optional stdlib-only service: 112 tests |
+| `scripts/` | validate, tests, IPA build/verify, packaging harness, project + icon generators |
+| `docs/` | 13 documents, including `TEST_REPORT.md` (§7 is this cycle) and `GET_THE_IPA.md` |
+| `agent-memory/` | These six files |
