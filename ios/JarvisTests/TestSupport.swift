@@ -68,6 +68,29 @@ final class MockTransport: HTTPTransport, @unchecked Sendable {
     }
 }
 
+/// Test-only thread-safe box.
+///
+/// A test that drives the orchestrator from a `Task` and records what it saw would
+/// otherwise have to mutate a captured `var` — which is an error on newer Swift
+/// toolchains ("mutation of captured var in concurrently-executing code"), and was
+/// the exact error that failed the first macOS CI run. See docs/TEST_REPORT.md.
+final class Box<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: Value
+
+    init(_ value: Value) { storage = value }
+
+    var value: Value {
+        get { lock.lock(); defer { lock.unlock() }; return storage }
+        set { lock.lock(); defer { lock.unlock() }; storage = newValue }
+    }
+
+    func mutate(_ body: (inout Value) -> Void) {
+        lock.lock(); defer { lock.unlock() }
+        body(&storage)
+    }
+}
+
 enum TestFixtures {
     typealias Stack = (memory: MemoryEngine, store: SQLiteMemoryStore, conversations: ConversationStore,
                        context: ContextManager, registry: ToolRegistry, executor: ToolExecutor,

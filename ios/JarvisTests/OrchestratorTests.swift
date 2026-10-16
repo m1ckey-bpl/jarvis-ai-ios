@@ -131,7 +131,7 @@ final class OrchestratorTests: XCTestCase {
         let (orchestrator, stack, transport, _, settings) = try makeOrchestrator(streams: [textStream("Your project is Jarvis.")])
         try settings.save(ProviderSettings(providerID: "custom-openai-compatible", model: "mock-model",
                                            baseURLOverride: "https://mock.local/v1"))
-        _ = try await stack.memory.remember("The user's project is called Jarvis", kind: .fact, subject: "user.project")
+        _ = try stack.memory.remember("The user's project is called Jarvis", kind: .fact, subject: "user.project")
 
         var deltas = ""
         var final: AgentTurn?
@@ -157,7 +157,7 @@ final class OrchestratorTests: XCTestCase {
         let (orchestrator, stack, _, _, settings) = try makeOrchestrator(streams: [textStream("ok")])
         try settings.save(ProviderSettings(providerID: "custom-openai-compatible", model: "mock-model",
                                            baseURLOverride: "https://mock.local/v1"))
-        _ = try await stack.memory.remember("The user's project is called Jarvis", kind: .fact, subject: "user.project")
+        _ = try stack.memory.remember("The user's project is called Jarvis", kind: .fact, subject: "user.project")
         var used: [ScoredMemory] = []
         for try await event in orchestrator.send("tell me about my project", sessionID: nil) {
             if case .memoryContext(let memories) = event { used = memories }
@@ -212,23 +212,25 @@ final class OrchestratorTests: XCTestCase {
         try settings.save(ProviderSettings(providerID: "custom-openai-compatible", model: "mock-model",
                                            baseURLOverride: "https://mock.local/v1"))
 
-        var confirmation: PendingConfirmation?
-        var declines: [ToolResult] = []
+        // Recorded through a lock-protected box: mutating a captured `var` from the
+        // task's concurrent context is an error on the Swift toolchain used by macOS CI.
+        let confirmation = Box<PendingConfirmation?>(nil)
+        let declines = Box<[ToolResult]>([])
         let task = Task { () -> Void in
             for try await event in orchestrator.send("do the irreversible thing", sessionID: nil) {
                 switch event {
                 case .confirmationRequired(let pending):
-                    confirmation = pending
+                    confirmation.value = pending
                     orchestrator.confirmations.resolve(id: pending.id, approved: false)
                 case .toolFinished(let result) where !result.success:
-                    declines.append(result)
+                    declines.mutate { $0.append(result) }
                 default: break
                 }
             }
         }
         _ = try await task.value
-        XCTAssertNotNil(confirmation)
-        XCTAssertEqual(declines.count, 1)
+        XCTAssertNotNil(confirmation.value)
+        XCTAssertEqual(declines.value.count, 1)
         XCTAssertNil(tool.lastArguments, "the declined tool never ran")
     }
 

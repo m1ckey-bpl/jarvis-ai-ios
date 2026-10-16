@@ -291,7 +291,7 @@ public final class AgentOrchestrator {
         let count = try conversations.messageCount(sessionID: session.id)
         if count > configuration.autoSummarizeAfterMessages {
             let summary = try contextManager.makeSummary(sessionID: session.id)
-            try? contextManager.summarizer.persist(summary, sessionID: session.id)
+            _ = try? contextManager.summarizer.persist(summary, sessionID: session.id)
             emit(.state(.thinking(detail: "Compacting earlier conversation…")))
         }
 

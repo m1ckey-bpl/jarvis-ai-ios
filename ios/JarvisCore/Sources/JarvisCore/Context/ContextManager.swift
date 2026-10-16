@@ -161,7 +161,7 @@ public final class ContextManager {
             }
             recent = Array(transcript.suffix(keepCount))
             compactionNote = "Earlier turns were compacted into a summary; decisions and constraints were preserved."
-            try? summarizer.persist(summary!, sessionID: sessionID)
+            _ = try? summarizer.persist(summary!, sessionID: sessionID)
         }
 
         let systemPrompt = systemPromptBuilder.build(now: now, timeZone: TimeZone.current,
