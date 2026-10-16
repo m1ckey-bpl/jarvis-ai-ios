@@ -45,7 +45,7 @@ is labelled *not verified here*, with the reason and the exact command you can r
 | 29 | Live OAuth against Google/Meta | Requires your own cloud projects and consent screens | Settings ▸ Permissions and `backend/README.md` §OAuth |
 | 30 | WhatsApp Business / Instagram Graph sends | Require your Meta Business account | `POST /v1/integrations/whatsapp/send` with `userApproved: true` |
 | 31 | Reminder notifications firing in the foreground/background | Requires a device | Create a reminder two minutes out and wait |
-| 32 | GitHub Actions green on a runner | Workflows are written and validated structurally, but have never executed (no remote push yet) | Push the repository and open the Actions tab |
+| 32 | GitHub Actions green on a runner | Workflows are written and validated structurally, but have never executed (the repository is committed locally as `main`/`18cf9bd` with no remote yet) | Push the repository and open the Actions tab |
 
 ## 3. Manual acceptance checklist (10 minutes on a device)
 

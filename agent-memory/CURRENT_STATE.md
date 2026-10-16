@@ -43,8 +43,8 @@ environment; milestone 12 (final audit) is written as
    repository) must run them.
 3. **No live provider call, OAuth exchange, or integration send has ever run**
    from this codebase (K12). All such paths are covered by stubbed tests only.
-4. **Nothing has been pushed to GitHub** — the repository has a local commit only.
-   CI has therefore never executed.
+4. **Nothing has been pushed to GitHub** — the repository has a single local commit
+   (`main`, `18cf9bd`, 145 tracked files) and no remote. CI has therefore never executed.
 
 ## Immediate next steps (in order)
 
