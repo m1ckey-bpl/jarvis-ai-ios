@@ -48,8 +48,8 @@ because nothing in this environment can compile SwiftUI or run `xcodebuild`.
 | 17 | IPA structurally verified | ◻️ | Verifier: bundle present, bundle ID, resources, no signature. Proven to accept a valid archive and to reject a malformed one with 8 named failures. |
 | 18 | GitHub Actions, free runner, no secrets | ✅ running (1 green, 1 red) | *Validate repository* green; engine tests green on `macos-14`; *Unsigned IPA* red twice — each failure was a real defect, now fixed, re-run pending. No `secrets.` reference anywhere; no paid feature used. |
 | 19 | Zero-cost policy enforced and documented | ✅ | `docs/FREE_TIER_POLICY.md`, verification date 2026-10-16, plus a §5 "if a tier stops being free" playbook. No key, no card, no billing anywhere in the project. |
-| 20 | Security requirements | ✅ | Keychain on device, secrets only in the backend, OAuth with PKCE + single-use state, least-privilege scopes, argument validation, authenticated endpoints, prompt-injection wrappers, 81-check validator including a credential-shape scan with a marker-gated exclusion policy. |
-| 21 | Repository validation | ✅ | `./scripts/validate_project.sh` → **checks: 81 · failures: 0 · RESULT: PASSED** (re-run after every edit in this session). |
+| 20 | Security requirements | ✅ | Keychain on device, secrets only in the backend, OAuth with PKCE + single-use state, least-privilege scopes, argument validation, authenticated endpoints, prompt-injection wrappers, 82-check validator including a credential-shape scan with a marker-gated exclusion policy. |
+| 21 | Repository validation | ✅ | `./scripts/validate_project.sh` → **checks: 82 · failures: 0 · RESULT: PASSED** (re-run after every edit in this session). |
 
 ---
 
@@ -120,6 +120,6 @@ because nothing in this environment can compile SwiftUI or run `xcodebuild`.
 **Reproduce every claim in this document:**
 
 ```bash
-./scripts/validate_project.sh     # 81 checks, 0 failures
+./scripts/validate_project.sh     # 82 checks, 0 failures
 ./scripts/run_tests.sh            # swift 107/0, python 112 passed, backend startup ok
 ```

@@ -63,7 +63,7 @@ Priority: P0 = release gate · P1 = important · P2 = nice-to-have
 
 ## Completed this session (for the record)
 
-Repository validation (81 checks), secrets-scan exclusion policy with in-file markers, three CI
+Repository validation (82 checks), secrets-scan exclusion policy with in-file markers, three CI
 workflows, twelve documents plus the root README, `docs/TEST_REPORT.md`, `JarvisApp` app layer
 (24 files), assistant/onboarding/recovery screens, asset pipeline, IPA build + verify scripts,
 and this memory refresh (D11–D16, K11–K12).

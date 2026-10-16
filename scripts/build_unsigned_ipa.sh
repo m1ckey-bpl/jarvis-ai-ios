@@ -35,6 +35,15 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
 fi
 command -v xcodebuild >/dev/null 2>&1 || { echo "xcodebuild not found: install Xcode." >&2; exit 4; }
 
+# A relative --output is anchored to the caller's working directory here, once.
+# Otherwise `zip` (which runs inside the build directory) wrote to a path that only
+# existed relative to the repository root, and the first packaging attempt failed with
+# "zip I/O error: No such file or directory". See docs/TEST_REPORT.md.
+case "$OUTPUT_DIR" in
+  /*) : ;;
+  *)  OUTPUT_DIR="$(pwd)/$OUTPUT_DIR" ;;
+esac
+
 PROJECT="$ROOT/ios/JarvisApp.xcodeproj"
 SCHEME="JarvisApp"
 APP_NAME="JarvisApp"

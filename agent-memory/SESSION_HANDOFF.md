@@ -15,7 +15,7 @@ and parse-checked; the Xcode build has never run.
 
 ```bash
 # 1. Sanity: everything that can be checked without macOS
-./scripts/validate_project.sh          # expect: 81 checks, 0 failures
+./scripts/validate_project.sh          # expect: 82 checks, 0 failures
 ./scripts/run_tests.sh                 # expect: swift 107/0, python 112 passed
 
 # 2. Publish (no credentials in this repo, none needed)

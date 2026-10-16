@@ -59,9 +59,10 @@ quiet level 2, which hides the "N passed" line — that is exactly how
 | Swift syntax of every file | `swiftc -parse` over 72 files (24 app + 39 engine + 9 test) | clean (syntax only — see limitation below) |
 | Generated Xcode project | `python3 scripts/generate_xcode_project.py --verify ios/JarvisApp.xcodeproj/project.pbxproj` — a real old-style-plist parser, not regexes | 162 objects, 21 groups, 63 Swift sources in the app target, 4 build configurations, every reference resolves |
 | Project freshness | `python3 scripts/generate_xcode_project.py --check` | up to date |
-| Repository validation | `./scripts/validate_project.sh` | **81 checks, 0 failures** |
+| Repository validation | `./scripts/validate_project.sh` | **82 checks, 0 failures** |
 | IPA verifier accepts a valid unsigned IPA | synthetic well-formed bundle | exit 0, "structurally valid and unsigned" |
 | IPA verifier rejects a broken IPA | synthetic malformed bundle | exit 1 with 8 named failures |
+| IPA packaging path (Linux, simulated `xcodebuild`) | `./scripts/test_ipa_packaging.sh` | builds, packages and verifies an artefact; asserts a relative `--output` lands where the caller asked |
 | Artwork generation | `python3 scripts/generate_app_icon.py` | icon-1024 (opaque), icon-180, hero-1200×630, lockup-512 + app catalog icon; pixel values sampled |
 
 ## 4. Not covered by automated tests (and why)
@@ -94,6 +95,8 @@ the two defects below were invisible to every local check.
 |---|---|---|
 | iOS #1 (`macos-14`, Xcode 16 toolchain) | `OrchestratorTests.swift:221/224: error: mutation of captured var 'confirmation' in concurrently-executing code` — the Linux Swift 6.0.3 toolchain compiled the same line happily | a lock-protected `Box` in `TestSupport.swift`, and the two redundant `await`s removed |
 | iOS #2 (Xcode 15.4) | `xcodebuild: error: Unable to read project 'JarvisApp.xcodeproj'` — `Old-style plist parser: missing semicolon in dictionary on line 570`. The generated project emitted `TARGETED_DEVICE_FAMILY = 1,2;`, and a comma is structural in that grammar | one quoting rule for every emitted value (`plist_quote`) plus a real old-style-plist parser in the generator, so an unreadable project file can no longer be written or committed |
+| iOS #3 (Xcode 15.4) | the app layer compiled for the first time: **9 errors, one root cause** — `Services.swift: cannot find 'UIImpactFeedbackGenerator' in scope` (no `import UIKit`, and that file is the only one without a SwiftUI import to re-export it) | guarded `import UIKit` in `Services.swift` and `RecoveryView.swift` |
+| iOS #4 (Xcode 15.4) | **`** BUILD SUCCEEDED **`** — the app compiles, links and validates; the job then failed in *my own* packaging script: `zip I/O error: No such file or directory`, because `--output dist` was relative and `zip` ran inside the build directory | `build_unsigned_ipa.sh` anchors a relative `--output` to the caller's directory, and `scripts/test_ipa_packaging.sh` now reproduces the whole packaging path on Linux with a simulated `xcodebuild` |
 
 Independent confirmation: the generated file also parses with the third-party
 `pbxproj` library (`XcodeProject.load`), which mirrors Apple's grammar.

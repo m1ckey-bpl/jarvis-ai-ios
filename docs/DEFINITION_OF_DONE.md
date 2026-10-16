@@ -19,7 +19,7 @@ is labelled *not verified here*, with the reason and the exact command you can r
 | 8 | App icon and artwork generated | `python3 scripts/generate_app_icon.py` → icon-1024, icon-180, hero-1200x630, lockup-512, app-catalog icon; pixel profile sampled (specular (200,251,255), mid (108,150,182), lower (38,72,97)) | ✅ verified |
 | 9 | IPA verifier accepts a valid unsigned IPA | synthetic well-formed bundle → `RESULT: the IPA is structurally valid and unsigned` (exit 0) | ✅ verified |
 | 10 | IPA verifier rejects a broken IPA | malformed bundle → 8 named failures, exit 1 | ✅ verified |
-| 11 | Repository validation passes | 81 checks: layout, 11 screens present, asset catalog, Info.plist usage strings, project freshness, 73 Swift files, secrets scan, .gitignore coverage, backend layout/compile, docs | ✅ verified (after the fixes in §5) |
+| 11 | Repository validation passes | 82 checks: layout, 11 screens present, asset catalog, Info.plist usage strings, project freshness, 73 Swift files, secrets scan, .gitignore coverage, backend layout/compile, docs | ✅ verified (after the fixes in §5) |
 | 12 | No secrets in the repository | validator's credential-pattern scan; only the four declared synthetic fixtures are excluded (`.secretsignore`), and each must carry the `synthetic-credential-fixture` marker inside the file or the build fails | ✅ verified |
 | 13 | Prompt-injection defence works | `SecurityTests` (13 tests) + backend `test_injection_scan_and_wrapping` | ✅ verified |
 | 14 | Memory persistence, correction chain, retrieval and export work | `MemoryTests` (13) + backend `test_memory.py` (15) | ✅ verified |
@@ -126,6 +126,14 @@ is not prettier than the history:
   `mutation of captured var 'confirmation' in concurrently-executing code`. Fixed with a
   lock-protected box in the tests (`Box` in `TestSupport.swift`). Local checks could not
   have found this — only a different toolchain did.
+* **The app layer's first real compile** (CI #3) found one missing `import UIKit` in
+  `Services.swift` — nine errors, one root cause — and nothing else. `swiftc -parse`
+  could never have seen it.
+* **`build_unsigned_ipa.sh` failed to package the artefact** (CI #4, after
+  `** BUILD SUCCEEDED **`) because `--output dist` was treated as relative to the build
+  directory: `zip I/O error: No such file or directory`. The path is now anchored to the
+  caller's directory, and `scripts/test_ipa_packaging.sh` reproduces the packaging path
+  on Linux with a simulated `xcodebuild`, so the next such bug is caught locally.
 * The **generated `project.pbxproj` could not be read by Xcode at all**:
   `Old-style plist parser: missing semicolon in dictionary on line 570`, because a build
   setting was emitted as `TARGETED_DEVICE_FAMILY = 1,2;` and a comma is structural in that

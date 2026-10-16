@@ -147,6 +147,15 @@ else
   printf '  ok    swiftc not installed; parse check skipped\n'
 fi
 
+section "unsigned IPA path (no macOS needed)"
+
+# The packaging half of build_unsigned_ipa.sh cannot run on Linux, so it is exercised
+# with a simulated xcodebuild — this is the check that would have caught the relative
+# --output bug before CI did (see docs/TEST_REPORT.md).
+if bash scripts/test_ipa_packaging.sh >/tmp/jarvis-ipa-packaging.log 2>&1
+then pass "packaging + verification path works with a simulated Xcode"
+else fail "packaging path failed: $(tail -3 /tmp/jarvis-ipa-packaging.log | tr '\n' ' ')"; fi
+
 section "secrets scan"
 SECRET_REGEX='(sk-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_\-]{30,}|gh[pousr]_[A-Za-z0-9]{30,}|EAA[A-Za-z0-9]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-[A-Za-z0-9-]{10,})'
 # Declared exclusions: files that deliberately contain synthetic key shapes so that
