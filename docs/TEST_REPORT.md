@@ -61,7 +61,7 @@ quiet level 2, which hides the "N passed" line — that is exactly how
 | Swift syntax of every file | `swiftc -parse` over 72 files (24 app + 39 engine + 9 test) | clean (syntax only — see limitation below) |
 | Generated Xcode project | `python3 scripts/generate_xcode_project.py --verify ios/JarvisApp.xcodeproj/project.pbxproj` — a real old-style-plist parser, not regexes | 162 objects, 21 groups, 63 Swift sources in the app target, 4 build configurations, every reference resolves |
 | Project freshness | `python3 scripts/generate_xcode_project.py --check` | up to date |
-| Repository validation | `./scripts/validate_project.sh` | **82 checks, 0 failures** |
+| Repository validation | `./scripts/validate_project.sh` | **83 checks, 0 failures** |
 | IPA verifier accepts a valid unsigned IPA | synthetic well-formed bundle | exit 0, "structurally valid and unsigned" |
 | IPA verifier rejects a broken IPA | synthetic malformed bundle | exit 1 with 8 named failures |
 | IPA packaging path (Linux, simulated `xcodebuild`) | `./scripts/test_ipa_packaging.sh` | builds, packages and verifies an artefact; asserts a relative `--output` lands where the caller asked |

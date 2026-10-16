@@ -4,7 +4,7 @@
 **Version in the tree:** 1.1.0 · **CI status:** pushed, run in progress
 **One-line summary:** v1.0.0 was installed on a real iPhone and produced three honest
 defects; all three are fixed in 1.1.0, the engine grew to 127 tests and the repository
-validation to 82 checks — both green locally, with CI running on the push.
+validation to 83 checks — both green locally, with the CI run for the fix in flight.
 
 ## What v1.0.0 looked like on the device
 
@@ -26,7 +26,7 @@ Three of those were real defects, one was a design gap:
 
 | Check | Command | Result |
 |---|---|---|
-| Repository validation | `bash scripts/validate_project.sh` | **82 checks, 0 failures** |
+| Repository validation | `bash scripts/validate_project.sh` | **83 checks, 0 failures** |
 | Engine tests | `cd ios && swift build --build-tests && swift test --skip-build` | **127 tests, 0 failures** (was 107; +14 model-discovery, +6 viseme) |
 | Backend tests | `cd backend && python3 -m pytest` | **112 passed** |
 | Packaging path (no macOS needed) | `bash scripts/test_ipa_packaging.sh` | **passes** with a simulated `xcodebuild` |

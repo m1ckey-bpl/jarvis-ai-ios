@@ -39,6 +39,7 @@ public struct NavigationShell: View {
     @EnvironmentObject private var parallax: MotionParallax
     @State private var selection: Tab = .assistant
     @State private var assistantModel: AssistantViewModel?
+    @State private var assistantState: AssistantState = .idle
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -47,7 +48,7 @@ public struct NavigationShell: View {
     public var body: some View {
         ZStack {
             // Atmosphere sits behind everything; it never takes touches.
-            SpatialBackdrop(state: assistantModel?.state ?? .idle)
+            SpatialBackdrop(state: assistantState)
                 .transition(.opacity)
 
             VStack(spacing: 0) {
@@ -69,7 +70,7 @@ public struct NavigationShell: View {
         switch selection {
         case .assistant:
             if let assistantModel {
-                AssistantHomeView(model: assistantModel)
+                AssistantHomeView(model: assistantModel, onStateChange: { assistantState = $0 })
                     .transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
                 VStack(spacing: JarvisTheme.Spacing.m) {

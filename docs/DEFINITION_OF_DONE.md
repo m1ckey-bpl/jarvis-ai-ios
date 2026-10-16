@@ -19,7 +19,7 @@ is labelled *not verified here*, with the reason and the exact command you can r
 | 8 | App icon and artwork generated | `python3 scripts/generate_app_icon.py` → icon-1024, icon-180, hero-1200x630, lockup-512, app-catalog icon; pixel profile sampled (specular (200,251,255), mid (108,150,182), lower (38,72,97)) | ✅ verified |
 | 9 | IPA verifier accepts a valid unsigned IPA | synthetic well-formed bundle → `RESULT: the IPA is structurally valid and unsigned` (exit 0) | ✅ verified |
 | 10 | IPA verifier rejects a broken IPA | malformed bundle → 8 named failures, exit 1 | ✅ verified |
-| 11 | Repository validation passes | 82 checks: layout, 11 screens present, asset catalog, Info.plist usage strings, project freshness, 73 Swift files, secrets scan, .gitignore coverage, backend layout/compile, docs | ✅ verified (after the fixes in §5) |
+| 11 | Repository validation passes | 83 checks: layout, 11 screens present, asset catalog, Info.plist usage strings, project freshness, 73 Swift files, secrets scan, .gitignore coverage, backend layout/compile, docs, and a guard against the payload-comparison mistake CI found | ✅ verified (after the fixes in §5) |
 | 12 | No secrets in the repository | validator's credential-pattern scan; only the four declared synthetic fixtures are excluded (`.secretsignore`), and each must carry the `synthetic-credential-fixture` marker inside the file or the build fails | ✅ verified |
 | 13 | Prompt-injection defence works | `SecurityTests` (13 tests) + backend `test_injection_scan_and_wrapping` | ✅ verified |
 | 14 | Memory persistence, correction chain, retrieval and export work | `MemoryTests` (13) + backend `test_memory.py` (15) | ✅ verified |
@@ -164,6 +164,14 @@ is not prettier than the history:
   instead of their vowel shapes — a mouth reads a word by its vowel. The initialiser now
   scans for the vowel first; the tests that encoded my wrong expectations were corrected
   rather than deleted, and the corrected expectations are in `TEST_REPORT.md` §7.
+* **CI #8 (the first compile of the 1.1.0 app layer) rejected two lines** that no local
+  check could see: `state == .failed` and `state == .executing` in `JarvisFace.swift`.
+  `AssistantState.failed` and `.executing` carry payloads, so they cannot be compared with
+  `==`; the compiler's error for it is memorable and misleading — *"cannot convert value of
+  type 'AssistantState' to expected argument type 'PencilSqueezeGesturePhase'"*. Fixed with
+  `if case` helpers, and `validate_project.sh` now greps for that specific pattern (comment
+  lines excluded, because prose may discuss it) so it cannot come back through a toolchain
+  that compiles SwiftUI before CI does.
 * `scripts/run_tests.sh` reported `python: unknown` instead of the test count: it
   passed `-q` on top of the `addopts = -q` in `backend/pytest.ini`, and quiet
   level 2 suppresses pytest's summary line. Fixed by dropping the duplicate flag

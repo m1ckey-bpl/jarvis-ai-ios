@@ -16,8 +16,15 @@ public struct AssistantHomeView: View {
     @State private var showsMemoryInspector = false
     @State private var showsHistory = false
     @State private var showsProviderSettings = false
+    /// The shell owns the backdrop and needs to know the assistant's state. `@State` does
+    /// not republish on a reference type's changes, so the state is handed up explicitly
+    /// rather than silently going stale.
+    private let onStateChange: (AssistantState) -> Void
 
-    public init(model: AssistantViewModel) { self.model = model }
+    public init(model: AssistantViewModel, onStateChange: @escaping (AssistantState) -> Void = { _ in }) {
+        self.model = model
+        self.onStateChange = onStateChange
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -62,6 +69,7 @@ public struct AssistantHomeView: View {
             NavigationStack { ProviderSettingsView().environmentObject(environment) }
         }
         .safeAreaInset(edge: .bottom) { confirmationCard }
+        .onChange(of: model.state) { _, newState in onStateChange(newState) }
     }
 
     // MARK: Header

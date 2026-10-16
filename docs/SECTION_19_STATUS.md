@@ -20,7 +20,7 @@ says so and names the command that closes it. Full detail:
 | ⛔ **Blocked on you** | 0 requirements | The IPA exists. The next step is signing it with your own method. |
 
 Bottom line, stated plainly: **it builds and it ships.** The engine (107 tests), the
-backend (112 tests) and the repository validation (82 checks) are green; the SwiftUI app
+backend (112 tests) and the repository validation (83 checks) are green; the SwiftUI app
 compiles under Xcode 15.4 on a free macOS runner; and the unsigned
 `JarvisApp-1.0.0-unsigned.ipa` exists, is verified, and is downloadable from the
 `v1.0.0` release. What remains unverified is **runtime behaviour on a device** and any
@@ -52,7 +52,7 @@ compiles under Xcode 15.4 on a free macOS runner; and the unsigned
 | 18 | GitHub Actions, free runner, no secrets | ✅ green | *Validate repository* #5 (82 checks); *iOS* #5 end to end (107 engine tests on `macos-14`, IPA built, verified, uploaded); *iOS* #6 on the tag. No `secrets.` reference anywhere; no paid feature used; repository public so macOS minutes stay free. |
 | 19 | Zero-cost policy enforced and documented | ✅ | `docs/FREE_TIER_POLICY.md`, verification date 2026-10-16, plus a §5 "if a tier stops being free" playbook. No key, no card, no billing anywhere in the project. |
 | 20 | Security requirements | ✅ | Keychain on device, secrets only in the backend, OAuth with PKCE + single-use state, least-privilege scopes, argument validation, authenticated endpoints, prompt-injection wrappers, 82-check validator including a credential-shape scan with a marker-gated exclusion policy. |
-| 21 | Repository validation | ✅ | `./scripts/validate_project.sh` → **checks: 82 · failures: 0 · RESULT: PASSED** (re-run after every edit in this session). |
+| 21 | Repository validation | ✅ | `./scripts/validate_project.sh` → **checks: 83 · failures: 0 · RESULT: PASSED** (re-run after every edit in this session). |
 
 ---
 
@@ -124,6 +124,6 @@ compiles under Xcode 15.4 on a free macOS runner; and the unsigned
 **Reproduce every claim in this document:**
 
 ```bash
-./scripts/validate_project.sh     # 82 checks, 0 failures
+./scripts/validate_project.sh     # 83 checks, 0 failures
 ./scripts/run_tests.sh            # swift 107/0, python 112 passed, backend startup ok
 ```

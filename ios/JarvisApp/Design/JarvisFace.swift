@@ -56,6 +56,20 @@ public struct JarvisFace: View {
         }
     }
 
+    /// `.failed(message:)` and `.executing(tool:detail:)` carry payloads, so `state == .failed`
+    /// is not a valid comparison — the compiler's error for it is memorable and misleading
+    /// ("cannot convert value of type 'AssistantState' to expected argument type
+    /// 'PencilSqueezeGesturePhase'"). These helpers are how the view asks the question.
+    private var isFailed: Bool {
+        if case .failed = state { return true }
+        return false
+    }
+
+    private var isExecuting: Bool {
+        if case .executing = state { return true }
+        return false
+    }
+
     private var glowStrength: Double {
         switch state {
         case .idle: return 0.55
@@ -266,12 +280,12 @@ public struct JarvisFace: View {
         .frame(width: diameter, height: diameter)
         .shadow(color: accent.opacity(0.7), radius: diameter * 0.34)
         .scaleEffect(y: blink, anchor: .center)
-        .opacity(state == .failed ? 0.75 : 1)
+        .opacity(isFailed ? 0.75 : 1)
         .accessibilityHidden(true)
     }
 
     private func brow(width: CGFloat, height: CGFloat, t: TimeInterval) -> some View {
-        let flicker = reduceMotion ? 1.0 : 0.72 + 0.28 * abs(sin(t * (state == .executing ? 5.0 : 1.1)))
+        let flicker = reduceMotion ? 1.0 : 0.72 + 0.28 * abs(sin(t * (isExecuting ? 5.0 : 1.1)))
         return Capsule()
             .fill(LinearGradient(colors: [accent.opacity(0.15), accent.opacity(0.85 * glowStrength * flicker),
                                           accent.opacity(0.15)],

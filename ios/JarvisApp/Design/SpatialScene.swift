@@ -19,7 +19,10 @@ import UIKit
 ///
 /// Everything degrades honestly: no CoreMotion (simulator, or Reduce Motion on) means
 /// the layers settle onto a slow ambient drift instead of pretending to track the hand.
-@MainActor
+/// Deliberately **not** `@MainActor`-isolated as a whole: it is created from a property
+/// initialiser in the `App` struct, where a main-actor initialiser would not compile. Every
+/// mutation below happens on the main actor explicitly (`Task { @MainActor in … }`), which
+/// is the same pattern `SpeechSynthesizerService` uses.
 public final class MotionParallax: ObservableObject {
 
     /// Radians, smoothed. `roll` is the tilt left/right, `pitch` is forward/back.
@@ -46,15 +49,21 @@ public final class MotionParallax: ObservableObject {
             return
         }
         manager.deviceMotionUpdateInterval = 1.0 / 30.0
-        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: .main) { [weak self] motion, _ in
-            guard let self, let motion else { return }
-            // Heavy smoothing: the background should lag the hand slightly, which is
-            // what sells the depth. Raw gyro values look jittery.
+        // The handler runs on a background queue, so it computes a plain value and hops
+        // to the main actor to publish it. Touching @MainActor state directly from this
+        // closure would not compile (and would be a data race even if it did).
+        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical) { [weak self] motion, _ in
+            guard let motion else { return }
             let roll = max(-1.0, min(1.0, motion.attitude.roll))
             let pitch = max(-1.0, min(1.0, motion.attitude.pitch))
-            self.roll = self.roll * 0.86 + roll * 0.14
-            self.pitch = self.pitch * 0.86 + pitch * 0.14
-            if !self.isLive { self.isLive = true }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Heavy smoothing: the background should lag the hand slightly, which is
+                // what sells the depth. Raw gyro values look jittery.
+                self.roll = self.roll * 0.86 + roll * 0.14
+                self.pitch = self.pitch * 0.86 + pitch * 0.14
+                if !self.isLive { self.isLive = true }
+            }
         }
         #else
         startDrift(reason: "CoreMotion unavailable")

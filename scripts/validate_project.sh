@@ -147,6 +147,17 @@ else
   printf '  ok    swiftc not installed; parse check skipped\n'
 fi
 
+# Payload-carrying enum cases cannot be compared with `==`. SwiftUI cannot be compiled in
+# this environment, so this specific mistake — which CI found once, in JarvisFace.swift,
+# with a misleading error about PencilSqueezeGesturePhase — is checked textually instead.
+bad_state_compare="$(grep -rnE "state (==|!=) \.(failed|executing|thinking|awaitingConfirmation)\b" ios --include='*.swift' \
+    | grep -vE ':[0-9]+:[[:space:]]*//' || true)"   # prose may discuss it; code may not do it
+if [[ -n "$bad_state_compare" ]]; then
+  fail "== comparison against a payload-carrying AssistantState case: $(echo "$bad_state_compare" | head -2 | tr '\n' ' ')"
+else
+  pass "no == comparison against a payload-carrying AssistantState case"
+fi
+
 section "unsigned IPA path (no macOS needed)"
 
 # The packaging half of build_unsigned_ipa.sh cannot run on Linux, so it is exercised
