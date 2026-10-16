@@ -49,10 +49,11 @@ public final class MotionParallax: ObservableObject {
             return
         }
         manager.deviceMotionUpdateInterval = 1.0 / 30.0
-        // The handler runs on a background queue, so it computes a plain value and hops
-        // to the main actor to publish it. Touching @MainActor state directly from this
-        // closure would not compile (and would be a data race even if it did).
-        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical) { [weak self] motion, _ in
+        // `to: nil` is required by the SDK's signature for the handler variant. The handler
+        // only computes plain values and then hops to the main actor to publish them:
+        // touching main-actor state directly from this closure would not compile (and would
+        // be a data race even if it did).
+        manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: nil) { [weak self] motion, _ in
             guard let motion else { return }
             let roll = max(-1.0, min(1.0, motion.attitude.roll))
             let pitch = max(-1.0, min(1.0, motion.attitude.pitch))
