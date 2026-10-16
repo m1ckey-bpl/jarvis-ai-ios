@@ -118,23 +118,13 @@ if command -v python3 >/dev/null 2>&1 && python3 scripts/generate_xcode_project.
 else
   fail "the project file is out of date; run scripts/generate_xcode_project.py"
 fi
-if python3 - <<'PY'
-import pathlib, re, sys
-text = pathlib.Path("ios/JarvisApp.xcodeproj/project.pbxproj").read_text()
-problems = []
-if text.count("{") != text.count("}"): problems.append("unbalanced braces")
-if text.count("(") != text.count(")"): problems.append("unbalanced parentheses")
-defined = set(re.findall(r"^\t\t([0-9A-F]{24}) = \{", text, re.M))
-referenced = set(re.findall(r"(?<![\w:])([0-9A-F]{24})(?![\w])", text))
-undefined = referenced - defined
-if undefined: problems.append(f"undefined object ids: {sorted(undefined)[:5]}")
-if not re.search(r"rootObject = [0-9A-F]{24};", text): problems.append("no rootObject")
-swift_sources = len(re.findall(r"sourcecode\.swift;", text))
-if swift_sources < 50: problems.append(f"only {swift_sources} Swift sources referenced")
-print("\n".join(problems))
-sys.exit(1 if problems else 0)
-PY
-then pass "project.pbxproj structure, references and completeness"; else fail "project.pbxproj validation failed (see above)"; fi
+# The project file is parsed with a real old-style-plist parser, not with regexes:
+# the first macOS CI run failed on `TARGETED_DEVICE_FAMILY = 1,2;` (an unquoted
+# comma is structural in that grammar), which balanced-brace and dangling-reference
+# checks cannot see. See docs/TEST_REPORT.md.
+if python3 scripts/generate_xcode_project.py --verify ios/JarvisApp.xcodeproj/project.pbxproj >/dev/null 2>&1
+then pass "project.pbxproj parses as an old-style plist with every reference resolving"
+else fail "project.pbxproj does not parse or has unresolved references: $(python3 scripts/generate_xcode_project.py --verify ios/JarvisApp.xcodeproj/project.pbxproj 2>&1 | head -3)"; fi
 
 section "swift sources"
 swift_files=$(find ios -name '*.swift' -not -path '*/.build/*' | wc -l | tr -d ' ')

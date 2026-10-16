@@ -11,7 +11,8 @@ same files the SwiftPM package builds for Linux tests), so a single project file
 has no external package resolution step that could fail on CI.
 
 Usage:  python3 scripts/generate_xcode_project.py [--check]
-        --check  verify the committed project matches the file tree (CI mode)
+        --check            verify the committed project matches the file tree (CI mode)
+        --verify PBXPROJ   parse an existing project file, check every reference
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import pathlib
+import re
 import sys
 
 BUNDLE_ID = "ai.jarvis.assistant"
@@ -37,6 +39,279 @@ PLIST_TYPE = "text.plist.xml"
 def uuid_for(key: str) -> str:
     """Deterministic 24-hex-character object identifier."""
     return hashlib.md5(key.encode("utf-8")).hexdigest()[:24].upper()
+
+
+# ---------------------------------------------------------------------------
+# Old-style (OpenStep) plist support.
+#
+# The first macOS CI run failed with:
+#   "xcodebuild: error: Unable to read project 'JarvisApp.xcodeproj'"
+#   "Old-style plist parser: missing semicolon in dictionary on line 570"
+# because a build setting was emitted as `TARGETED_DEVICE_FAMILY = 1,2;` — a comma
+# is structural in this format, so the value has to be quoted ("1,2"). The
+# balance-and-regex checks this script used before could not see that.
+#
+# So the project file is now *parsed* here, with a real parser for the grammar
+# Xcode uses, and every object reference is resolved before the file is written.
+# Nothing is written that does not parse.
+# ---------------------------------------------------------------------------
+
+BARE_SAFE = re.compile(r"^[A-Za-z0-9_]+([./][A-Za-z0-9_]+)*$")
+REFERENCE = re.compile(r"^[0-9A-F]{24}$")
+
+REQUIRED_ISA = (
+    "PBXProject", "PBXNativeTarget", "PBXGroup", "PBXFileReference", "PBXBuildFile",
+    "PBXSourcesBuildPhase", "PBXResourcesBuildPhase", "PBXFrameworksBuildPhase",
+    "XCConfigurationList", "XCBuildConfiguration",
+)
+
+
+def plist_quote(value: str) -> str:
+    """Quotes a value the way Xcode does: bare only when it is unambiguously a token.
+
+    Bare values must not contain `,` `(` `)` `{` `}` `=` `;` `"` whitespace `$` `-`
+    or anything else the grammar treats specially — quoting is always safe, so the
+    rule is deliberately conservative.
+    """
+    if value and BARE_SAFE.match(value):
+        return value
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+class PlistSyntaxError(ValueError):
+    """Raised with a line number when the generated text is not valid."""
+
+
+def parse_openstep(text: str):  # noqa: C901 - a parser is naturally branchy
+    """Parses an old-style plist. Returns nested dicts/lists/strings.
+
+    Enforces the two rules that actually bite in hand-generated project files:
+    every dictionary entry ends with `;`, and array elements are comma-separated.
+    """
+    index = 0
+    length = len(text)
+
+    def fail(message: str, position: int) -> None:
+        line = text.count("\n", 0, position) + 1
+        column = position - (text.rfind("\n", 0, position) + 1) + 1
+        raise PlistSyntaxError(f"line {line}, column {column}: {message}")
+
+    def skip_trivia() -> None:
+        nonlocal index
+        while index < length:
+            char = text[index]
+            if char.isspace():
+                index += 1
+            elif text.startswith("/*", index):
+                end = text.find("*/", index + 2)
+                if end == -1:
+                    fail("unterminated /* comment", index)
+                index = end + 2
+            elif text.startswith("//", index):
+                end = text.find("\n", index)
+                index = length if end == -1 else end + 1
+            else:
+                return
+
+    def parse_quoted() -> str:
+        nonlocal index
+        index += 1
+        out: list[str] = []
+        escapes = {"n": "\n", "t": "\t", "r": "\r", '"': '"', "\\": "\\", "'": "'"}
+        while index < length:
+            char = text[index]
+            if char == "\\":
+                nxt = text[index + 1] if index + 1 < length else ""
+                if nxt in escapes:
+                    out.append(escapes[nxt])
+                    index += 2
+                    continue
+                if nxt in ("u", "U") and index + 6 <= length:
+                    digits = text[index + 2:index + 6]
+                    try:
+                        out.append(chr(int(digits, 16)))
+                        index += 6
+                        continue
+                    except ValueError:
+                        fail("malformed unicode escape", index)
+                out.append(nxt)
+                index += 2
+                continue
+            if char == '"':
+                index += 1
+                return "".join(out)
+            out.append(char)
+            index += 1
+        fail("unterminated quoted string", index)
+
+    def parse_bare() -> str:
+        nonlocal index
+        start = index
+        while index < length and text[index] not in ' \t\r\n;,=(){}"':
+            index += 1
+        if index == start:
+            fail(f"unexpected character {text[index]!r}", index)
+        return text[start:index]
+
+    def parse_value():
+        nonlocal index
+        skip_trivia()
+        if index >= length:
+            fail("unexpected end of file", index)
+        char = text[index]
+        if char == "{":
+            return parse_dict()
+        if char == "(":
+            return parse_array()
+        if char == '"':
+            return parse_quoted()
+        return parse_bare()
+
+    def parse_dict() -> dict:
+        nonlocal index
+        index += 1  # consume '{'
+        result: dict[str, object] = {}
+        while True:
+            skip_trivia()
+            if index >= length:
+                fail("unterminated dictionary", index)
+            if text[index] == "}":
+                index += 1
+                return result
+            key = parse_quoted() if text[index] == '"' else parse_bare()
+            skip_trivia()
+            if index >= length or text[index] != "=":
+                fail(f"expected '=' after key {key!r}", index)
+            index += 1
+            value = parse_value()
+            skip_trivia()
+            if index >= length:
+                fail(f"missing ';' after the value of {key!r}", index)
+            if text[index] != ";":
+                fail(f"missing ';' after the value of {key!r} (found {text[index]!r})", index)
+            index += 1
+            result[key] = value
+
+    def parse_array() -> list:
+        nonlocal index
+        index += 1  # consume '('
+        items: list[object] = []
+        while True:
+            skip_trivia()
+            if index >= length:
+                fail("unterminated array", index)
+            if text[index] == ")":
+                index += 1
+                return items
+            items.append(parse_value())
+            skip_trivia()
+            if index < length and text[index] == ",":
+                index += 1
+                continue
+            if index < length and text[index] == ")":
+                index += 1
+                return items
+            fail("expected ',' or ')' in array", index)
+
+    value = parse_value()
+    skip_trivia()
+    if index != length:
+        fail("unexpected trailing content", index)
+    return value
+
+
+def _references(node) -> list[str]:
+    found: list[str] = []
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, dict):
+            stack.extend(current.values())
+        elif isinstance(current, list):
+            stack.extend(current)
+        elif isinstance(current, str) and REFERENCE.match(current):
+            found.append(current)
+    return found
+
+
+def verify_project_text(text: str) -> tuple[list[str], dict]:
+    """Parses the project text and checks structure and every object reference.
+
+    Returns (problems, statistics). An empty `problems` list means the text is
+    something Xcode can read.
+    """
+    stats: dict = {}
+    try:
+        document = parse_openstep(text)
+    except PlistSyntaxError as error:
+        return [f"the project file is not a valid old-style plist — {error}"], stats
+
+    problems: list[str] = []
+    if not isinstance(document, dict):
+        return ["the project file does not contain a top-level dictionary"], stats
+
+    objects = document.get("objects")
+    if not isinstance(objects, dict):
+        return ["the project file has no `objects` dictionary"], stats
+
+    root = document.get("rootObject")
+    if not isinstance(root, str) or root not in objects:
+        problems.append("`rootObject` is missing or does not resolve to an object")
+
+    isa_types: list[str] = []
+    for identifier, body in objects.items():
+        if not isinstance(body, dict) or "isa" not in body:
+            problems.append(f"object {identifier} has no `isa`")
+            continue
+        isa_types.append(str(body["isa"]))
+
+    for required in REQUIRED_ISA:
+        if required not in isa_types:
+            problems.append(f"the project has no {required} object")
+
+    missing = sorted({ref for ref in _references(objects) if ref not in objects})
+    if missing:
+        problems.append(f"references to undefined objects: {', '.join(missing[:5])}")
+
+    for identifier, body in objects.items():
+        if not isinstance(body, dict):
+            continue
+        isa = body.get("isa")
+        if isa == "PBXBuildFile" and body.get("fileRef") not in objects:
+            problems.append(f"PBXBuildFile {identifier} points at a missing file reference")
+        if isa == "PBXGroup":
+            for child in body.get("children", []) or []:
+                if child not in objects:
+                    problems.append(f"PBXGroup {identifier} has a missing child {child}")
+        if isa == "PBXNativeTarget":
+            if body.get("buildConfigurationList") not in objects:
+                problems.append(f"target {identifier} has no configuration list")
+            for phase in body.get("buildPhases", []) or []:
+                if phase not in objects:
+                    problems.append(f"target {identifier} has a missing build phase {phase}")
+
+    stats["objects"] = len(objects)
+    stats["groups"] = isa_types.count("PBXGroup")
+    stats["swift_sources"] = text.count("sourcecode.swift;")
+    stats["build_configurations"] = isa_types.count("XCBuildConfiguration")
+    return problems, stats
+
+
+def verify_file(path: pathlib.Path) -> int:
+    """`--verify <project.pbxproj>`: standalone syntax and structure check."""
+    if not path.exists():
+        print(f"ERROR: {path} does not exist")
+        return 1
+    problems, stats = verify_project_text(path.read_text())
+    if problems:
+        for problem in problems:
+            print(f"ERROR: {problem}")
+        return 1
+    print(f"{path}: parses as an old-style plist — {stats['objects']} objects, "
+          f"{stats['groups']} groups, {stats['swift_sources']} Swift sources, "
+          f"{stats['build_configurations']} build configurations")
+    return 0
 
 
 def collect(root: pathlib.Path, base: pathlib.Path) -> list[pathlib.Path]:
@@ -70,7 +345,7 @@ class ProjectBuilder:
         relative = path.relative_to(self.root)
         return self.add(f"fileref:{relative}",
                         f'{{isa = PBXFileReference; lastKnownFileType = {file_type}; '
-                        f'path = "{path.name}"; sourceTree = "<group>"; }};')
+                        f'path = {plist_quote(path.name)}; sourceTree = "<group>"; }};')
 
     def build_file(self, path: pathlib.Path, file_type: str, phase: str) -> str:
         reference = self.file_reference(path, file_type)
@@ -80,7 +355,7 @@ class ProjectBuilder:
 
     def group(self, name: str, children: list[str], path: str | None = None) -> str:
         child_list = "\n".join(f"\t\t\t\t{child}," for child in children)
-        path_line = f'\t\t\tpath = "{path}";\n' if path else ""
+        path_line = f"\t\t\tpath = {plist_quote(path)};\n" if path else ""
         return self.add(f"group:{name}:{path}",
                         "{\n"
                         "\t\t\tisa = PBXGroup;\n"
@@ -122,9 +397,9 @@ def build_settings(configuration: str) -> str:
         "GENERATE_INFOPLIST_FILE": "NO",
         "INFOPLIST_FILE": f"{APP_DIR}/Info.plist",
         "MARKETING_VERSION": "1.0.0",
-        "OTHER_LDFLAGS": '"-lsqlite3"',
+        "OTHER_LDFLAGS": "-lsqlite3",
         "PRODUCT_BUNDLE_IDENTIFIER": BUNDLE_ID,
-        "PRODUCT_NAME": '"$(TARGET_NAME)"',
+        "PRODUCT_NAME": "$(TARGET_NAME)",
         "SUPPORTS_MACCATALYST": "NO",
         "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
         "VALIDATE_PRODUCT": "YES",
@@ -135,22 +410,22 @@ def build_settings(configuration: str) -> str:
             "ENABLE_TESTABILITY": "YES",
             "GCC_DYNAMIC_NO_PIC": "NO",
             "GCC_OPTIMIZATION_LEVEL": "0",
-            "GCC_PREPROCESSOR_DEFINITIONS": '"DEBUG=1 $(inherited)"',
+            "GCC_PREPROCESSOR_DEFINITIONS": "DEBUG=1 $(inherited)",
             "MTL_ENABLE_DEBUG_INFO": "INCLUDE_SOURCE",
             "MTL_FAST_MATH": "YES",
             "ONLY_ACTIVE_ARCH": "YES",
             "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG",
-            "SWIFT_OPTIMIZATION_LEVEL": '"-Onone"',
+            "SWIFT_OPTIMIZATION_LEVEL": "-Onone",
         })
     else:
         common.update({
-            "DEBUG_INFORMATION_FORMAT": '"dwarf-with-dsym"',
+            "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
             "ENABLE_NS_ASSERTIONS": "NO",
             "MTL_ENABLE_DEBUG_INFO": "NO",
             "MTL_FAST_MATH": "YES",
             "SWIFT_COMPILATION_MODE": "wholemodule",
         })
-    body = "\n".join(f"\t\t\t\t{key} = {value};" for key, value in sorted(common.items()))
+    body = "\n".join(f"\t\t\t\t{key} = {plist_quote(value)};" for key, value in sorted(common.items()))
     return ("{\n"
             "\t\t\tisa = XCBuildConfiguration;\n"
             "\t\t\tbuildSettings = {\n"
@@ -420,12 +695,26 @@ def write(root: pathlib.Path, check: bool) -> int:
     scheme_file = project_dir / "xcshareddata" / "xcschemes" / f"{TARGET_NAME}.xcscheme"
     content = render(root)
 
+    # Never emit a project file that does not parse: this is the check that the
+    # first macOS CI run proved was missing (see the note above about line 570).
+    problems, stats = verify_project_text(content)
+    if problems:
+        for problem in problems:
+            print(f"ERROR: {problem}")
+        print("ERROR: refusing to write an unreadable project file")
+        return 1
+    print(f"verified generated project: {stats['objects']} objects, {stats['groups']} groups, "
+          f"{stats['swift_sources']} Swift sources, {stats['build_configurations']} build configurations")
+
     if check:
-        problems = []
         if not project_file.exists() or project_file.read_text() != content:
             problems.append(f"{project_file} is out of date — run scripts/generate_xcode_project.py")
         if not scheme_file.exists() or scheme_file.read_text() != scheme_xml():
             problems.append(f"{scheme_file} is out of date")
+        # the committed file must parse too, not just the freshly rendered one
+        if project_file.exists():
+            committed, _ = verify_project_text(project_file.read_text())
+            problems.extend(f"committed {project_file.name}: {p}" for p in committed)
         for problem in problems:
             print(f"ERROR: {problem}")
         return 1 if problems else 0
@@ -443,9 +732,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
                         help="verify the committed project matches the file tree")
+    parser.add_argument("--verify", metavar="PROJECT_PBXPROJ",
+                        help="parse an existing project file and check every reference")
     parser.add_argument("--repo-ios-dir",
                         default=str(pathlib.Path(__file__).resolve().parents[1] / "ios"))
     args = parser.parse_args()
+    if args.verify:
+        return verify_file(pathlib.Path(args.verify))
     return write(pathlib.Path(args.repo_ios_dir), args.check)
 
 

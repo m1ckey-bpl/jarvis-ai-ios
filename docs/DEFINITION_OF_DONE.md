@@ -45,7 +45,7 @@ is labelled *not verified here*, with the reason and the exact command you can r
 | 29 | Live OAuth against Google/Meta | Requires your own cloud projects and consent screens | Settings ▸ Permissions and `backend/README.md` §OAuth |
 | 30 | WhatsApp Business / Instagram Graph sends | Require your Meta Business account | `POST /v1/integrations/whatsapp/send` with `userApproved: true` |
 | 31 | Reminder notifications firing in the foreground/background | Requires a device | Create a reminder two minutes out and wait |
-| 32 | GitHub Actions green on a runner | Workflows are written and validated structurally, but have never executed (the repository is committed locally as `main`/`18cf9bd` with no remote yet) | Push the repository and open the Actions tab |
+| 32 | GitHub Actions green on a runner | Runs now execute on the public repository: *Validate repository* is green; the *Engine tests* job is green on `macos-14` (107 tests); the *Unsigned IPA* job has not yet succeeded — it is where the SwiftUI layer gets its first compile, and it has already found two real defects (see §5) | Re-run after the project-file fix: `gh workflow run ios.yml` or push |
 
 ## 3. Manual acceptance checklist (10 minutes on a device)
 
@@ -122,6 +122,17 @@ is not prettier than the history:
 * The icon artwork gained grey halos around its highlights because Pillow's blur on
   RGBA drags colour toward the transparent surround — fixed by blurring the alpha
   channel only.
+* The **first macOS CI run** rejected a test line the Linux toolchain accepted:
+  `mutation of captured var 'confirmation' in concurrently-executing code`. Fixed with a
+  lock-protected box in the tests (`Box` in `TestSupport.swift`). Local checks could not
+  have found this — only a different toolchain did.
+* The **generated `project.pbxproj` could not be read by Xcode at all**:
+  `Old-style plist parser: missing semicolon in dictionary on line 570`, because a build
+  setting was emitted as `TARGETED_DEVICE_FAMILY = 1,2;` and a comma is structural in that
+  grammar. Every value now goes through one quoting rule, and the file is verified with a
+  real old-style-plist parser (in the generator *and* in `validate_project.sh`) before it
+  can be written or committed. Balanced-brace and dangling-reference checks had passed on
+  the broken file — which is exactly why they were not enough.
 * `scripts/run_tests.sh` reported `python: unknown` instead of the test count: it
   passed `-q` on top of the `addopts = -q` in `backend/pytest.ini`, and quiet
   level 2 suppresses pytest's summary line. Fixed by dropping the duplicate flag

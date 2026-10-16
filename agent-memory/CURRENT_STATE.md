@@ -2,6 +2,19 @@
 
 **Last updated:** 2026-10-16 (end of session) · **Updated by:** the build session
 
+## Update — the repository is now on GitHub and CI has run
+
+* Pushed to **https://github.com/m1ckey-bpl/jarvis-ai-ios** (public, so the macOS
+  runner stays free). Repository: `main`, HEAD `737bb96` + the project-file fix.
+* **Run #1** — *Validate repository*: green. *iOS*: **red** at `swift build --build-tests`
+  (captured-var error in a test; fixed).
+* **Run #2** — *Engine tests* job: **green on `macos-14`**, 107 tests pass on a real Mac.
+  *Unsigned IPA* job: **red** — `xcodebuild` could not read the generated project
+  (unquoted comma in a build setting; fixed by a real plist parser in the generator).
+* Still unverified: the SwiftUI app has never *compiled* (the project file is the last
+  thing that failed before it), no `.ipa`, no live provider/OAuth call.
+* Next action: push the fix and watch the *Unsigned IPA* job.
+
 ## Status in one line
 
 Milestones 1–10 are complete and verified by executable evidence; milestone 11

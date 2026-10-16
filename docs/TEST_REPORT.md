@@ -57,7 +57,7 @@ quiet level 2, which hides the "N passed" line — that is exactly how
 | Backend refuses insecure start | `JARVIS_HOST=0.0.0.0 JARVIS_BACKEND_TOKEN= python3 -m app.main --check` | exit 2 with an explanatory message |
 | Backend byte-compiles | `python3 -m compileall backend/app` | clean |
 | Swift syntax of every file | `swiftc -parse` over 72 files (24 app + 39 engine + 9 test) | clean (syntax only — see limitation below) |
-| Generated Xcode project | structural analysis of `project.pbxproj` | 162 objects, 21 groups, 63 Swift sources referenced by the app target (24 app + 39 engine), 0 undefined object ids, balanced braces and parentheses |
+| Generated Xcode project | `python3 scripts/generate_xcode_project.py --verify ios/JarvisApp.xcodeproj/project.pbxproj` — a real old-style-plist parser, not regexes | 162 objects, 21 groups, 63 Swift sources in the app target, 4 build configurations, every reference resolves |
 | Project freshness | `python3 scripts/generate_xcode_project.py --check` | up to date |
 | Repository validation | `./scripts/validate_project.sh` | **81 checks, 0 failures** |
 | IPA verifier accepts a valid unsigned IPA | synthetic well-formed bundle | exit 0, "structurally valid and unsigned" |
@@ -84,3 +84,19 @@ quiet level 2, which hides the "N passed" line — that is exactly how
   `DEFINITION_OF_DONE.md` §2).
 * All provider, OAuth and integration tests use stubbed transports. They prove the
   client's behaviour, not the remote service's.
+
+## 6. What the macOS CI runs found (and what was fixed)
+
+Recorded because this is the part that could not be known before a real Mac ran:
+the two defects below were invisible to every local check.
+
+| Run | Finding | Fix |
+|---|---|---|
+| iOS #1 (`macos-14`, Xcode 16 toolchain) | `OrchestratorTests.swift:221/224: error: mutation of captured var 'confirmation' in concurrently-executing code` — the Linux Swift 6.0.3 toolchain compiled the same line happily | a lock-protected `Box` in `TestSupport.swift`, and the two redundant `await`s removed |
+| iOS #2 (Xcode 15.4) | `xcodebuild: error: Unable to read project 'JarvisApp.xcodeproj'` — `Old-style plist parser: missing semicolon in dictionary on line 570`. The generated project emitted `TARGETED_DEVICE_FAMILY = 1,2;`, and a comma is structural in that grammar | one quoting rule for every emitted value (`plist_quote`) plus a real old-style-plist parser in the generator, so an unreadable project file can no longer be written or committed |
+
+Independent confirmation: the generated file also parses with the third-party
+`pbxproj` library (`XcodeProject.load`), which mirrors Apple's grammar.
+
+Status of those two runs: iOS #1 and #2 are **red**, kept as the record of what was
+wrong. The engine test job is green on `macos-14` from run #2 onwards.

@@ -74,71 +74,71 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE3E7F781A64843DF2DADF1D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvironment.swift"; sourceTree = "<group>"; };
-		26A8C069AEACC91105581A1B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JarvisAppMain.swift"; sourceTree = "<group>"; };
-		6D316654CAC6B81BB8786578 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JarvisComponents.swift"; sourceTree = "<group>"; };
-		EE72E455B8D5FFB84CDF6359 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JarvisOrb.swift"; sourceTree = "<group>"; };
-		64EDAE7752CD798FEDCD6896 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JarvisTheme.swift"; sourceTree = "<group>"; };
-		DBE1DBD21399A0877D4D1D6D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantViewModel.swift"; sourceTree = "<group>"; };
-		5E49ADCBE3A06D0DC0FAEAAF = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
-		6F298324B9AECA3EBF5380ED = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantHomeView.swift"; sourceTree = "<group>"; };
-		0E82A2534E9B19327DB42E07 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConnectedServicesView.swift"; sourceTree = "<group>"; };
-		EBB9DACD7896F9F29845C31B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationHistoryView.swift"; sourceTree = "<group>"; };
-		A4B06E1363850DA84DA38786 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryCenterView.swift"; sourceTree = "<group>"; };
-		F499904B9C4302A00B3D5472 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationShell.swift"; sourceTree = "<group>"; };
-		CFB5342A91E0FEFCC56BFDA5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingView.swift"; sourceTree = "<group>"; };
-		E6B460E37AA3F75E56D6057B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PermissionSetupView.swift"; sourceTree = "<group>"; };
-		CC7CD032AD6AC72EE9AAFBB2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProjectAgentView.swift"; sourceTree = "<group>"; };
-		FEE9F61DB6CCD3146514D2F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProviderSettingsView.swift"; sourceTree = "<group>"; };
-		FE7653EE0F80E893FEBDC87D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecoveryView.swift"; sourceTree = "<group>"; };
-		6EBD3DDEE6A9E1C459A4282B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
-		30F19BAE3B34A4318E4041BA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TasksView.swift"; sourceTree = "<group>"; };
-		B6646F1599A905B4F6167C5C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToolHistoryView.swift"; sourceTree = "<group>"; };
-		D034E9E1BC505DDD1AE95215 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DisplayNames.swift"; sourceTree = "<group>"; };
-		86E68BD8F6028DB2CE4515B2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GitHubBridge.swift"; sourceTree = "<group>"; };
-		343F8E0154AB63EEF2139EC1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeychainSecretStore.swift"; sourceTree = "<group>"; };
-		2290C3B6DF875C2EC43624CF = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Services.swift"; sourceTree = "<group>"; };
-		4847C21A7E65AC229B3F4340 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechServices.swift"; sourceTree = "<group>"; };
-		F44B025C7B6445377EA122BB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AgentOrchestrator.swift"; sourceTree = "<group>"; };
-		AC43AE910C8A1FF63180A1CD = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantState.swift"; sourceTree = "<group>"; };
-		2561CA39E8E379B3FC4FAA0A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfirmationBroker.swift"; sourceTree = "<group>"; };
-		53049CDF0F2C49C0E8F6FBD6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryExtractor.swift"; sourceTree = "<group>"; };
-		00554DA22D3E619F1523B76D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CapabilityStatus.swift"; sourceTree = "<group>"; };
-		C0432CCB7C0BFA682AF1B567 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContextManager.swift"; sourceTree = "<group>"; };
-		8E3AEB32D15F35C29FDD92DA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SystemPromptBuilder.swift"; sourceTree = "<group>"; };
-		036ABCE802EFCF99BEFECB9E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Clock.swift"; sourceTree = "<group>"; };
-		A83D762C4BFEC5AE01A12832 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSON.swift"; sourceTree = "<group>"; };
-		C9C4C5CE47D6BE28E38D0791 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JarvisError.swift"; sourceTree = "<group>"; };
-		459BBD7A3C8EDC8C319F319E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logging.swift"; sourceTree = "<group>"; };
-		487D50E42E1BACB29240A4CE = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteDatabase.swift"; sourceTree = "<group>"; };
-		33931F0AE132D86EE1E4843E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SecretStore.swift"; sourceTree = "<group>"; };
-		248CE5161071E2FC989440A9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GitHubClient.swift"; sourceTree = "<group>"; };
-		E38A20503FD97F3EF9EA7B33 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GmailClient.swift"; sourceTree = "<group>"; };
-		AD1F6F77808C02F67CA36920 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntegrationHub.swift"; sourceTree = "<group>"; };
-		A41C3CF984C02ADAD2E538B6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Messaging.swift"; sourceTree = "<group>"; };
-		51DA82A919FC77F89C5ED8C1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationStore.swift"; sourceTree = "<group>"; };
-		F9CFB919B681D88333C212D4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryCommands.swift"; sourceTree = "<group>"; };
-		DE7E0F74F432714E53320636 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryEngine.swift"; sourceTree = "<group>"; };
-		6E2AC1283D27EA086B2669DB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryRecord.swift"; sourceTree = "<group>"; };
-		34E3179DFB16D28E99312FC2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MemoryStore.swift"; sourceTree = "<group>"; };
-		8C953D0A01FA1E04FE90E983 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Retrieval.swift"; sourceTree = "<group>"; };
-		B2A23E562F7D24339AFDFFE5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Summarizer.swift"; sourceTree = "<group>"; };
-		4326F2651180112B367DC027 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPTransport.swift"; sourceTree = "<group>"; };
-		D1659782D95A76003B092102 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SSE.swift"; sourceTree = "<group>"; };
-		84C739B272D131557F62E29C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatModel.swift"; sourceTree = "<group>"; };
-		AEA3183A6BB65FCB9B164F6B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiProvider.swift"; sourceTree = "<group>"; };
-		FFF3B722CAED14BC5D6BDF4A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OpenAICompatibleProvider.swift"; sourceTree = "<group>"; };
-		B1FD7D6EE61B140EAAED76F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProviderCatalog.swift"; sourceTree = "<group>"; };
-		A3145BFBB49395648015E7E4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateTimeParser.swift"; sourceTree = "<group>"; };
-		3B5E6B0399A5388B227974D1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecurrenceRule.swift"; sourceTree = "<group>"; };
-		EDC920C378258FE23D5CD3EB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReminderEngine.swift"; sourceTree = "<group>"; };
-		84CD90393CC125037C76F061 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PromptInjectionGuard.swift"; sourceTree = "<group>"; };
-		D10731E122302118A82F513C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuiltinTools.swift"; sourceTree = "<group>"; };
-		B74B288D1512CCEF93795752 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntegrationTools.swift"; sourceTree = "<group>"; };
-		89379596CFAB0AAC4136B85B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToolDefinition.swift"; sourceTree = "<group>"; };
-		DB4A6945B26CCB21A8D61483 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToolExecutor.swift"; sourceTree = "<group>"; };
-		0D427E853B2D622DAA091D2F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToolRegistry.swift"; sourceTree = "<group>"; };
-		3C7A4C93F4B6A470AD9F5136 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		CE3E7F781A64843DF2DADF1D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		26A8C069AEACC91105581A1B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisAppMain.swift; sourceTree = "<group>"; };
+		6D316654CAC6B81BB8786578 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisComponents.swift; sourceTree = "<group>"; };
+		EE72E455B8D5FFB84CDF6359 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisOrb.swift; sourceTree = "<group>"; };
+		64EDAE7752CD798FEDCD6896 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisTheme.swift; sourceTree = "<group>"; };
+		DBE1DBD21399A0877D4D1D6D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantViewModel.swift; sourceTree = "<group>"; };
+		5E49ADCBE3A06D0DC0FAEAAF = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6F298324B9AECA3EBF5380ED = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantHomeView.swift; sourceTree = "<group>"; };
+		0E82A2534E9B19327DB42E07 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedServicesView.swift; sourceTree = "<group>"; };
+		EBB9DACD7896F9F29845C31B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationHistoryView.swift; sourceTree = "<group>"; };
+		A4B06E1363850DA84DA38786 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCenterView.swift; sourceTree = "<group>"; };
+		F499904B9C4302A00B3D5472 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationShell.swift; sourceTree = "<group>"; };
+		CFB5342A91E0FEFCC56BFDA5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		E6B460E37AA3F75E56D6057B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionSetupView.swift; sourceTree = "<group>"; };
+		CC7CD032AD6AC72EE9AAFBB2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAgentView.swift; sourceTree = "<group>"; };
+		FEE9F61DB6CCD3146514D2F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderSettingsView.swift; sourceTree = "<group>"; };
+		FE7653EE0F80E893FEBDC87D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryView.swift; sourceTree = "<group>"; };
+		6EBD3DDEE6A9E1C459A4282B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		30F19BAE3B34A4318E4041BA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
+		B6646F1599A905B4F6167C5C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolHistoryView.swift; sourceTree = "<group>"; };
+		D034E9E1BC505DDD1AE95215 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNames.swift; sourceTree = "<group>"; };
+		86E68BD8F6028DB2CE4515B2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubBridge.swift; sourceTree = "<group>"; };
+		343F8E0154AB63EEF2139EC1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecretStore.swift; sourceTree = "<group>"; };
+		2290C3B6DF875C2EC43624CF = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services.swift; sourceTree = "<group>"; };
+		4847C21A7E65AC229B3F4340 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechServices.swift; sourceTree = "<group>"; };
+		F44B025C7B6445377EA122BB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentOrchestrator.swift; sourceTree = "<group>"; };
+		AC43AE910C8A1FF63180A1CD = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantState.swift; sourceTree = "<group>"; };
+		2561CA39E8E379B3FC4FAA0A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationBroker.swift; sourceTree = "<group>"; };
+		53049CDF0F2C49C0E8F6FBD6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryExtractor.swift; sourceTree = "<group>"; };
+		00554DA22D3E619F1523B76D = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapabilityStatus.swift; sourceTree = "<group>"; };
+		C0432CCB7C0BFA682AF1B567 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextManager.swift; sourceTree = "<group>"; };
+		8E3AEB32D15F35C29FDD92DA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPromptBuilder.swift; sourceTree = "<group>"; };
+		036ABCE802EFCF99BEFECB9E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clock.swift; sourceTree = "<group>"; };
+		A83D762C4BFEC5AE01A12832 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
+		C9C4C5CE47D6BE28E38D0791 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisError.swift; sourceTree = "<group>"; };
+		459BBD7A3C8EDC8C319F319E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		487D50E42E1BACB29240A4CE = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDatabase.swift; sourceTree = "<group>"; };
+		33931F0AE132D86EE1E4843E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStore.swift; sourceTree = "<group>"; };
+		248CE5161071E2FC989440A9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubClient.swift; sourceTree = "<group>"; };
+		E38A20503FD97F3EF9EA7B33 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailClient.swift; sourceTree = "<group>"; };
+		AD1F6F77808C02F67CA36920 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationHub.swift; sourceTree = "<group>"; };
+		A41C3CF984C02ADAD2E538B6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messaging.swift; sourceTree = "<group>"; };
+		51DA82A919FC77F89C5ED8C1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationStore.swift; sourceTree = "<group>"; };
+		F9CFB919B681D88333C212D4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCommands.swift; sourceTree = "<group>"; };
+		DE7E0F74F432714E53320636 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEngine.swift; sourceTree = "<group>"; };
+		6E2AC1283D27EA086B2669DB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryRecord.swift; sourceTree = "<group>"; };
+		34E3179DFB16D28E99312FC2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStore.swift; sourceTree = "<group>"; };
+		8C953D0A01FA1E04FE90E983 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Retrieval.swift; sourceTree = "<group>"; };
+		B2A23E562F7D24339AFDFFE5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Summarizer.swift; sourceTree = "<group>"; };
+		4326F2651180112B367DC027 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPTransport.swift; sourceTree = "<group>"; };
+		D1659782D95A76003B092102 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSE.swift; sourceTree = "<group>"; };
+		84C739B272D131557F62E29C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
+		AEA3183A6BB65FCB9B164F6B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiProvider.swift; sourceTree = "<group>"; };
+		FFF3B722CAED14BC5D6BDF4A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleProvider.swift; sourceTree = "<group>"; };
+		B1FD7D6EE61B140EAAED76F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderCatalog.swift; sourceTree = "<group>"; };
+		A3145BFBB49395648015E7E4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeParser.swift; sourceTree = "<group>"; };
+		3B5E6B0399A5388B227974D1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrenceRule.swift; sourceTree = "<group>"; };
+		EDC920C378258FE23D5CD3EB = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderEngine.swift; sourceTree = "<group>"; };
+		84CD90393CC125037C76F061 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptInjectionGuard.swift; sourceTree = "<group>"; };
+		D10731E122302118A82F513C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltinTools.swift; sourceTree = "<group>"; };
+		B74B288D1512CCEF93795752 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTools.swift; sourceTree = "<group>"; };
+		89379596CFAB0AAC4136B85B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefinition.swift; sourceTree = "<group>"; };
+		DB4A6945B26CCB21A8D61483 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolExecutor.swift; sourceTree = "<group>"; };
+		0D427E853B2D622DAA091D2F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolRegistry.swift; sourceTree = "<group>"; };
+		3C7A4C93F4B6A470AD9F5136 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D6825761A76844AC5BD7569 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "JarvisApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -159,7 +159,7 @@
 				CE3E7F781A64843DF2DADF1D,
 				26A8C069AEACC91105581A1B,
 			);
-			path = "App";
+			path = App;
 			sourceTree = "<group>";
 		};
 		29690514A18E2DA0D689D2FB = {
@@ -169,7 +169,7 @@
 				EE72E455B8D5FFB84CDF6359,
 				64EDAE7752CD798FEDCD6896,
 			);
-			path = "Design";
+			path = Design;
 			sourceTree = "<group>";
 		};
 		2D964FB42079953FEDD72A7B = {
@@ -177,7 +177,7 @@
 			children = (
 				DBE1DBD21399A0877D4D1D6D,
 			);
-			path = "Features";
+			path = Features;
 			sourceTree = "<group>";
 		};
 		F5476F8F8A485EFAD148AF4B = {
@@ -185,7 +185,7 @@
 			children = (
 				5E49ADCBE3A06D0DC0FAEAAF,
 			);
-			path = "Resources";
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		1BFF65DC48A702AD030340EE = {
@@ -205,7 +205,7 @@
 				30F19BAE3B34A4318E4041BA,
 				B6646F1599A905B4F6167C5C,
 			);
-			path = "Screens";
+			path = Screens;
 			sourceTree = "<group>";
 		};
 		D7EA1F4292CA784B557140CD = {
@@ -217,7 +217,7 @@
 				2290C3B6DF875C2EC43624CF,
 				4847C21A7E65AC229B3F4340,
 			);
-			path = "Support";
+			path = Support;
 			sourceTree = "<group>";
 		};
 		41B20C4B3AA1F0CF115F14FB = {
@@ -228,7 +228,7 @@
 				2561CA39E8E379B3FC4FAA0A,
 				53049CDF0F2C49C0E8F6FBD6,
 			);
-			path = "Agent";
+			path = Agent;
 			sourceTree = "<group>";
 		};
 		949381127E2B7DBF1F98770C = {
@@ -236,7 +236,7 @@
 			children = (
 				00554DA22D3E619F1523B76D,
 			);
-			path = "Capability";
+			path = Capability;
 			sourceTree = "<group>";
 		};
 		FA7A74154856041C99F51F28 = {
@@ -245,7 +245,7 @@
 				C0432CCB7C0BFA682AF1B567,
 				8E3AEB32D15F35C29FDD92DA,
 			);
-			path = "Context";
+			path = Context;
 			sourceTree = "<group>";
 		};
 		2B7ADDEB1BCDA45FDD9CC6BE = {
@@ -258,7 +258,7 @@
 				487D50E42E1BACB29240A4CE,
 				33931F0AE132D86EE1E4843E,
 			);
-			path = "Core";
+			path = Core;
 			sourceTree = "<group>";
 		};
 		3093C5A29EA0CFBE495FF61E = {
@@ -269,7 +269,7 @@
 				AD1F6F77808C02F67CA36920,
 				A41C3CF984C02ADAD2E538B6,
 			);
-			path = "Integrations";
+			path = Integrations;
 			sourceTree = "<group>";
 		};
 		07E755A36CED3222357ADF04 = {
@@ -283,7 +283,7 @@
 				8C953D0A01FA1E04FE90E983,
 				B2A23E562F7D24339AFDFFE5,
 			);
-			path = "Memory";
+			path = Memory;
 			sourceTree = "<group>";
 		};
 		10ADB043D0BA569157B393C6 = {
@@ -292,7 +292,7 @@
 				4326F2651180112B367DC027,
 				D1659782D95A76003B092102,
 			);
-			path = "Networking";
+			path = Networking;
 			sourceTree = "<group>";
 		};
 		34B2B86522638FB6B3DC29B4 = {
@@ -303,7 +303,7 @@
 				FFF3B722CAED14BC5D6BDF4A,
 				B1FD7D6EE61B140EAAED76F4,
 			);
-			path = "Providers";
+			path = Providers;
 			sourceTree = "<group>";
 		};
 		B9DEC1B82D86528791514466 = {
@@ -313,7 +313,7 @@
 				3B5E6B0399A5388B227974D1,
 				EDC920C378258FE23D5CD3EB,
 			);
-			path = "Reminders";
+			path = Reminders;
 			sourceTree = "<group>";
 		};
 		AF122BA294A281EF09DE2EAF = {
@@ -321,7 +321,7 @@
 			children = (
 				84CD90393CC125037C76F061,
 			);
-			path = "Safety";
+			path = Safety;
 			sourceTree = "<group>";
 		};
 		E5C05FB3B85F35AFD1399118 = {
@@ -333,7 +333,7 @@
 				DB4A6945B26CCB21A8D61483,
 				0D427E853B2D622DAA091D2F,
 			);
-			path = "Tools";
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		26C7D2FA6FE5BB285B978880 = {
@@ -347,7 +347,7 @@
 				1BFF65DC48A702AD030340EE,
 				D7EA1F4292CA784B557140CD,
 			);
-			path = "JarvisApp";
+			path = JarvisApp;
 			sourceTree = "<group>";
 		};
 		4FE8B3BB6D10D271FD08691A = {
@@ -365,7 +365,7 @@
 				AF122BA294A281EF09DE2EAF,
 				E5C05FB3B85F35AFD1399118,
 			);
-			path = "JarvisCore/Sources/JarvisCore";
+			path = JarvisCore/Sources/JarvisCore;
 			sourceTree = "<group>";
 		};
 		B9BA3FD987703A70EE1F9084 = {
@@ -567,7 +567,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = 1,2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -612,7 +612,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = 1,2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -662,7 +662,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = 1,2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -707,7 +707,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = 1,2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

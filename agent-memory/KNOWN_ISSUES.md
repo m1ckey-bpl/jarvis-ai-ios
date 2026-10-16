@@ -70,6 +70,11 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
   in views, `@State`/`@EnvironmentObject` usage and modifier chains.
 - **Impact:** The app cannot be claimed to build until a macOS run. The engine beneath it (107
   tests) and the backend (112 tests) are unaffected.
+- **Update 2026-10-16:** the engine and its 107 tests now build and pass on a real
+  `macos-14` runner (CI run #2). The *app layer* still has not compiled: the run stopped
+  one step earlier, at `xcodebuild` being unable to read the generated project file
+  (unquoted comma bug, fixed). So the risk below still stands for the SwiftUI code, and
+  the next CI run is its first real type check.
 - **Handling:** `docs/DEFINITION_OF_DONE.md` §2 lists this as *not verified here* with the exact
   command; the iOS CI job exists to close it; the manual checklist is written and ready.
 - **Next step:** run `xcodebuild -project ios/JarvisApp.xcodeproj -scheme JarvisApp -configuration
