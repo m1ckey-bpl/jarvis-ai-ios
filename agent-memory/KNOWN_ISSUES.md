@@ -107,6 +107,10 @@ Every entry: symptom · reproduction · root cause (or "under investigation") ·
 - **Handling:** `docs/DEFINITION_OF_DONE.md` §3 is the manual checklist; the two most
   valuable steps for this cycle are (1) paste a real key, press **List models**, then
   **Run test**, and (2) scroll every screen to its last row and tap the last control.
+- **Status of the build itself:** `JarvisApp-1.1.0-unsigned.ipa` now exists, was verified
+  here (both copies, each against its published checksum) and is attached to the `v1.1.0`
+  Release. The 1.1.0 UI compiles (CI #11) — this was not true until three red runs taught it
+  three small SDK facts; see `docs/TEST_REPORT.md` §7.1.
 - **Next step:** the user signs `JarvisApp-1.1.0-unsigned.ipa`, installs it, and reports
   what actually happens — including "no change", which would be a finding too.
 

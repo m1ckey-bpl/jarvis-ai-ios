@@ -140,3 +140,28 @@ worse report.
 | 3 | "The UI is too basic" / "I want an animated face that speaks" | Correct assessment: v1.0.0 shipped a state-reactive orb, no face, no depth | Original animated face (`JarvisFace`): polished-silver cranium, dark visor with two luminescent optics, segmented seven-bar light mouth. The **mouth is driven by `AVSpeechSynthesizer.willSpeakRangeOfSpeechString`** — the letters actually being voiced map to a `Viseme` and a jaw opening, so the lips follow the words and stop when the voice stops; there is no decorative animation loop. Added a spatial layer (`SpatialBackdrop`, `MotionParallax`, `SpatialSurface`): three parallax strata moved by the device's own attitude (CoreMotion), lit by the assistant's state, with Reduce Motion and no-sensor fallbacks that are honest about what they are | `VisemeTests` (6) cover the shape maths. The rendering needs a device |
 | 4 | Not user-reported — found while re-running the suite for this cycle | The first `Viseme` tests failed for a real reason: `Viseme(pronouncing:)` returned on the **first** matching letter, so "Jarvis" produced a fricative (the "j") and "stop" a fricative (the "s") instead of their vowel shapes. A mouth reads a word by its vowel | The initialiser now scans for the vowel first and only falls back to consonant shapes for words without one; the tests that encoded my wrong guesses were corrected, not deleted | `VisemeTests`, 6/6 passing |
 
+### 7.1 What it cost to get the app layer compiled (CI runs #8–#11)
+
+Every one of these was invisible to `swiftc -parse`, to `validate_project.sh` and to review,
+because SwiftUI cannot be compiled anywhere but macOS. Each was small; each cost a full
+CI round trip.
+
+| Run | Finding | Fix |
+|---|---|---|
+| #8 | `JarvisFace.swift:269/274: error: cannot convert value of type 'AssistantState' to expected argument type 'PencilSqueezeGesturePhase'` and `member 'executing(tool:detail:)' is a function that produces expected type 'AssistantState'` — `state == .failed` and `state == .executing`; both cases carry payloads, so `==` does not exist for them, and the compiler's message names a completely unrelated type | `if case` helpers (`isFailed`, `isExecuting`); plus a validator check that greps for the pattern (comment lines excluded) so a SwiftUI-less toolchain catches it next time |
+| #9 | `SpatialScene.swift:55: error: missing argument for parameter 'to' in call` — `startDeviceMotionUpdates(using:withHandler:)` does not exist; the handler variant takes an `OperationQueue` | passed the queue argument |
+| #10 | `SpatialScene.swift:56: error: 'nil' is not compatible with expected argument type 'OperationQueue'` — that parameter is non-optional in this SDK | `to: .main` |
+| **#11** | **green** — app compiled and linked (the first time any of the v1.1.0 UI has been compiled), unsigned IPA built, verified and uploaded | — |
+
+Run #11 also produced the artefact, and the tag build produced the Release copy:
+
+| Artefact | Size (bytes) | SHA-256 |
+|---|---|---|
+| workflow artifact, run #11 | 3,770,537 | `37a9af61ab68c7568504883ab07743dcb012ca2827f5ee1c8de53575ead088dd` |
+| Release asset for `v1.1.0` | 3,770,566 | `36947e7354718bc96aa260bd8057592ab5a843cdc64b93647975fff6667549cc` |
+
+Both were downloaded again here, each recomputed checksum matched the value its producer
+published, and `scripts/verify_unsigned_ipa.sh` accepted both as structurally valid and
+unsigned. Bundle `ai.jarvis.assistant`, version **1.1.0** (build 2), `MinimumOSVersion`
+17.0, `UIDeviceFamily` [1, 2] (iPhone and iPad), executable `JarvisApp`, no `_CodeSignature`,
+no provisioning profile, no entitlements, no credential-shaped strings.

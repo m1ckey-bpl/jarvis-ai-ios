@@ -2,9 +2,11 @@
 
 **Left off at:** 2026-10-16, end of the second cycle.
 **State:** v1.0.0 was installed on a real iPhone and produced three honest defects; all
-three are fixed in **1.1.0**, the engine suite is now **127 tests**, the repository
-validation is **82 checks**, and both are green locally. The repository was pushed so CI
-can compile the new app layer — **watch that run before claiming anything about 1.1.0**.
+three are fixed in **1.1.0**. The engine suite is **127 tests**, the repository validation
+is **83 checks**, CI **iOS #11 is green** (the 1.1.0 app compiled and linked on `macos-14`
+for the first time, after three red runs that each caught one real SDK-level mistake), and
+`JarvisApp-1.1.0-unsigned-ipa` is published on the `v1.1.0` Release with its checksum. The
+one thing left is the human step below.
 
 ## Read these first (in order)
 
@@ -31,29 +33,32 @@ an animated speaking face plus a spatial UI. Diagnosis and fixes:
 ## Exact next actions
 
 ```bash
-# 1. Everything checkable without macOS (expect: 82 checks / 0 failures, 127 Swift tests, 112 python)
+# 1. Everything checkable without macOS (expect: 83 checks / 0 failures, 127 Swift tests, 112 python)
 ./scripts/validate_project.sh
 ./scripts/run_tests.sh
 
-# 2. The run for this push must be green before anything is claimed about 1.1.0
-#    (it is the app layer's first compile each cycle — iOS #3 and #4 each found one real bug)
+# 2. Already done for 1.1.0: CI iOS #11 green, tag v1.1.0 pushed, Release published.
+#    Re-run only after a new commit (the ios workflow compiles, packages, verifies, uploads).
 
-# 3. When it is green: publish the durable artefact
-git tag -a v1.1.0 -m "JARVIS 1.1.0 — provider activation fix, layout fix, animated face, spatial UI"
-git push origin v1.1.0        # CI rebuilds the IPA and attaches it to a Release
-
-# 4. On a Mac, if one is available (same result, no CI round trip)
+# 3. On a Mac, if one is available (same result, no CI round trip)
 python3 scripts/generate_xcode_project.py --check
 ./scripts/build_unsigned_ipa.sh && ./scripts/verify_unsigned_ipa.sh dist/*.ipa
 ```
 
-Then the human step: sign `JarvisApp-1.1.0-unsigned.ipa` with the user's own method,
-install, and run `docs/DEFINITION_OF_DONE.md` §3 — the two steps that matter most for this
-cycle are **paste a real key → List models → Run test** and **tap the last control on
-every screen**.
+Then the human step, which is the only thing standing between this and "done": sign
+`JarvisApp-1.1.0-unsigned.ipa` with your own method, install it, and run
+`docs/DEFINITION_OF_DONE.md` §3. The two steps that matter most for this cycle are
+**paste a real key → List models → Run test** (does the Active-provider card name the
+provider you chose?) and **tap the last control on every screen** (does anything still hide
+behind the tab bar?).
 
 ## Things that will bite you if you forget them
 
+* **The GitHub token supplied for this cycle is not in the repository or its git config** —
+  it was used through a one-shot `http.extraheader`, and the remote URL is plain HTTPS. The
+  user should revoke it now that the IPA is delivered; a fine-grained token limited to
+  `Contents: read/write` is enough for future pushes. A sandbox restore drops `.git/config`,
+  so the remote may need re-adding: `https://github.com/m1ckey-bpl/jarvis-ai-ios.git`.
 * **This sandbox loses `.git/config` and file modes between turns.** Set the commit
   identity inline (`git -c user.name=… -c user.email=… commit`) and `chmod +x scripts/*.sh`
   before committing, or CI's `./scripts/…` invocations stop being executable. A missing

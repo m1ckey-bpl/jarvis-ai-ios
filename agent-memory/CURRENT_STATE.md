@@ -1,7 +1,7 @@
 # CURRENT STATE — jarvis-ai-ios
 
 **Last updated:** 2026-10-16 (second cycle, after the first device build)
-**Version in the tree:** 1.1.0 · **CI status:** pushed, run in progress
+**Version in the tree:** 1.1.0 · **CI status:** iOS #11 green (app compiled, IPA built); `v1.1.0` Release published
 **One-line summary:** v1.0.0 was installed on a real iPhone and produced three honest
 defects; all three are fixed in 1.1.0, the engine grew to 127 tests and the repository
 validation to 83 checks — both green locally, with the CI run for the fix in flight.
@@ -67,23 +67,39 @@ Three of those were real defects, one was a design gap:
 
 ## What is still NOT verified
 
-* **The v1.1.0 app has never been compiled.** CI compiles it on this push; until that run
-  is green, the new SwiftUI code (face, spatial layer, reworked navigation and provider
-  screen) is syntax-checked only. This is the single biggest open risk.
+* **Resolved since the last update:** the 1.1.0 app now compiles and links (CI #11 on
+  `macos-14`, Xcode 15.4) after three red runs, each of which caught one real SDK-level
+  mistake in the new SwiftUI code: `state == .failed` / `== .executing` on payload-carrying
+  enum cases (#8), a CoreMotion call missing its queue argument (#9), and `nil` passed for a
+  non-optional `OperationQueue` (#10). Full history in `docs/TEST_REPORT.md` §7.1.
 * **Nothing from v1.1.0 has run on a device.** The provider fix, the layout fix, the face
   and the parallax all need one install to confirm.
 * **No live provider call has ever been made with a real key.** The request shapes are
   verified against the real endpoints with deliberately invalid keys (HTTP 400/401 with
   the providers' own messages), which is as far as this environment can go.
 
+## The artefact (verified here, not just produced)
+
+| Copy | Size | SHA-256 |
+|---|---|---|
+| workflow artifact, iOS #11 | 3,770,537 bytes | `37a9af61ab68c7568504883ab07743dcb012ca2827f5ee1c8de53575ead088dd` |
+| `v1.1.0` Release asset | 3,770,566 bytes | `36947e7354718bc96aa260bd8057592ab5a843cdc64b93647975fff6667549cc` |
+
+Bundle `ai.jarvis.assistant`, version 1.1.0 (build 2), minimum iOS 17.0, arm64, iPhone+iPad,
+unsigned. Both copies were downloaded again, each checksum matched what its producer
+published, and `verify_unsigned_ipa.sh` accepted both. The staged deliverable is
+`/home/user/JARVIS-1.1.0-unsigned-ipa/` (IPA + `.sha256` + `README.txt`).
+
 ## Immediate next steps
 
-1. Watch the CI run for this push; fix whatever the macOS compile reports (it is the
-   app layer's first compile each cycle — expect something small, as in iOS #3 and #4).
-2. Tag `v1.1.0` so the rebuilt IPA lands on a Release with its checksum.
-3. Hand the new IPA over; the user signs and installs it, then runs
-   `docs/DEFINITION_OF_DONE.md` §3 and — the important one — pastes their real key into
-   Settings ▸ AI Providers and presses **List models**, then **Run test**.
+1. **The user signs and installs `JarvisApp-1.1.0-unsigned.ipa`.**
+2. The two acceptance steps: Settings ▸ AI Providers ▸ paste a real key ▸ **Save key and
+   activate** (the Active-provider card must name that provider) ▸ **List models** ▸
+   **Run test**; and on every screen, tap the last control to confirm nothing hides behind
+   the tab bar.
+3. Report back — including "no change", which would itself be a finding.
+4. If CI ever needs re-running: the GitHub token used this cycle must be **revoked by the
+   user afterwards**; it was never stored in the repository or its git config.
 
 ## File-by-file quick index
 

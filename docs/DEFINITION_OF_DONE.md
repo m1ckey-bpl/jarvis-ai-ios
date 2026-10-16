@@ -39,7 +39,7 @@ is labelled *not verified here*, with the reason and the exact command you can r
 | # | Item | Why not | How you verify it (exact command) |
 |---|---|---|---|
 | 25 | The SwiftUI app target compiles | ⚠️ **now verified** — the app layer compiled, linked and passed Xcode's bundle validation on a `macos-14` runner (`** BUILD SUCCEEDED **`, CI run #5). Its first compile found 9 errors with one root cause (a missing `import UIKit`), all fixed. | re-run any time: push, or `gh workflow run ios.yml` |
-| 26 | The unsigned `.ipa` is produced | ⚠️ **now verified** — `JarvisApp-1.0.0-unsigned.ipa` built by CI run #5 (`3,611,746` bytes, SHA-256 `d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33`) and rebuilt for the tag by run #6 (`3,611,884` bytes, SHA-256 `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb`, attached to release `v1.0.0`). Both were downloaded and re-verified on Linux by `verify_unsigned_ipa.sh`; each checksum matches the one the workflow published | `./scripts/build_unsigned_ipa.sh` on a Mac, or download the run artifact / the `v1.0.0` release asset |
+| 26 | The unsigned `.ipa` is produced | ⚠️ **now verified for 1.1.0** — `JarvisApp-1.1.0-unsigned.ipa`: CI run #11 artifact `3,770,537` bytes, SHA-256 `37a9af61ab68c7568504883ab07743dcb012ca2827f5ee1c8de53575ead088dd`; `v1.1.0` release asset `3,770,566` bytes, SHA-256 `36947e7354718bc96aa260bd8057592ab5a843cdc64b93647975fff6667549cc`. Both downloaded and re-verified here, each checksum matching the value its producer published. (History: `v1.0.0` — run #5 `3,611,746` bytes / `d109ff09…aaa33`; tag run #6 `3,611,884` bytes / `24314b54…0deeb`.) | `./scripts/build_unsigned_ipa.sh` on a Mac, or download the run artifact / the release asset for the tag you want |
 | 27 | Runtime behaviour on a device: orb states, haptics, VoiceOver, Dynamic Type, Reduce Motion, safe areas | Requires a device or simulator | Run the app and walk the checklist in §3 |
 | 28 | Live provider calls with a real key | No key is present by design (and no key will ever be committed) | Settings ▸ AI Providers ▸ "Test connection" |
 | 29 | Live OAuth against Google/Meta | Requires your own cloud projects and consent screens | Settings ▸ Permissions and `backend/README.md` §OAuth |
@@ -188,6 +188,9 @@ is not prettier than the history:
 | #4 | red — `** BUILD SUCCEEDED **`, then my packaging script mis-handled a relative `--output` |
 | **#5** | **green** — 107 engine tests on macOS, app built, unsigned IPA produced, verified, uploaded |
 | #6 | green — tag `v1.0.0`: same artefact attached to a GitHub Release (link that does not expire) |
+| #7–#10 | red (v1.0.0 works, v1.1.0 does not yet) — the device build's reports are addressed, then **the 1.1.0 app layer's first compile** found three SDK-level mistakes in the new SwiftUI code: two payload-carrying enum cases compared with `==`, a CoreMotion call missing its queue argument, and `nil` passed for a non-optional `OperationQueue`. See `TEST_REPORT.md` §7.1 |
+| **#11** | **green** — 127 engine tests on `macos-14`, app compiled and linked, `JarvisApp-1.1.0-unsigned.ipa` built, verified and uploaded |
+| #12 (tag `v1.1.0`) | green — the rebuilt artefact is attached to the `v1.1.0` Release with its checksum |
 
 Artefacts: `JarvisApp-1.0.0-unsigned.ipa` — 3,611,746 bytes, SHA-256
 `d109ff09b9f26b92a64c12e4d23618ef72a62da01f9c05e076a64cf9bc7aaa33` (run #5 artifact), and 3,611,884 bytes, SHA-256 `24314b544679151e34dc8d9e2f018436a11bd68fad4dd05abc4d22e7ef40deeb`
